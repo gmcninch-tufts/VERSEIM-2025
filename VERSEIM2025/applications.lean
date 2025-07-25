@@ -2,6 +2,7 @@ import Mathlib.Tactic
 import Mathlib.LinearAlgebra.BilinearForm.Orthogonal
 
 import VERSEIM2025.Subspaces
+import VERSEIM2025.block
 
 -- Katherine and Clea, I think you can prove various things using the
 -- "basis of internal direct sum" theorem that Katherine finished
@@ -16,7 +17,7 @@ open LinearMap
 variable {k V:Type} [Field k] [AddCommGroup V] [Module k V]
 
 variable {β:BilinForm k V}
-variable {ι₁ ι₂ : Type} [DecidableEq ι₁] [DecidableEq ι₂]
+variable {ι₁ ι₂ : Type} [Fintype ι₁] [Fintype ι₂] [DecidableEq ι₁] [DecidableEq ι₂]
 
 
 -- let's make a precidicate for subspaces on which the form is
@@ -34,144 +35,206 @@ def Nondeg_subspace (β : BilinForm k V) (W:Submodule k V) : Prop :=
 -- complement, but it is actually already in Mathlib, as
 -- `LinearMap.BilinForm.orthogonal`
 
-def zero_mat : Matrix ι₁ ι₂ k := fun _ _ => (0 : k)
 
-def Matrix.IsBlockDiagonal (M : Matrix (ι₁ ⊕ ι₂) (ι₁ ⊕ ι₂) k) : Prop :=
-  (∀ i j, M (Sum.inl i) (Sum.inr j) = 0) ∧
-  (∀ i j, M (Sum.inr i) (Sum.inl j) = 0)
+def p (ι₁ ι₂ : Type) [Fintype ι₁] [Fintype ι₂] [DecidableEq ι₁] [DecidableEq ι₂]: ι₁ ⊕ ι₂ → Prop := by
+  intro i
+  exact (∃ (y : ι₁), i = Sum.inl y)
 
-structure Matrix.BlockDiagonal (M : Matrix (ι₁ ⊕ ι₂) (ι₁ ⊕ ι₂) k) where
-  A : Matrix ι₁ ι₁ k
-  B : Matrix ι₂ ι₂ k
-  eq : M = Matrix.fromBlocks A zero_mat zero_mat B
 
-/- theorem is_block_diagonal_iff_block_diag (M :  Matrix (ι₁ ⊕ ι₂) (ι₁ ⊕ ι₂) k)
-(h: ) -/
+theorem finrank_sup_eq_neg_finrank_inf_add {u v : Type} {K : Type u} {V : Type v} [DivisionRing K] [AddCommGroup V] [Module K V]
+  (s t : Submodule K V) [FiniteDimensional K ↥s] [FiniteDimensional K ↥t] :
+  Module.finrank K ↥(s ⊔ t) = Module.finrank K ↥s + Module.finrank K ↥t - (Module.finrank K ↥(s ⊓ t)) := by
+    rw[Nat.sub_eq_of_eq_add']
+    rw[← Submodule.finrank_sup_add_finrank_inf_eq]
+    rw[add_comm]
 
-def extractBlockDiagonal
-  {M : Matrix (ι₁ ⊕ ι₂) (ι₁ ⊕ ι₂) k}
-  (h : Matrix.IsBlockDiagonal M) : Matrix.BlockDiagonal M :=
-  {
-    A := λ i j => M (Sum.inl i) (Sum.inl j),
-    B := λ i j => M (Sum.inr i) (Sum.inr j),
-    eq := by
-      ext i j
-      cases i with
-      | inl i' =>
-        cases j with
-        | inl j' => rfl
-        | inr j' => exact h.1 i' j'
-      | inr i' =>
-        cases j with
-        | inl j' => exact h.2 i' j'
-        | inr j' => rfl
-  }
+lemma left_mem_basis_direct_sum {ι₁ ι₂ :Type}
+              (W₁ W₂ : Submodule k V)
+              (B₁ : Basis ι₁ k W₁)
+              (B₂ : Basis ι₂ k W₂)
+              [FiniteDimensional k V] [Fintype ι₁] [DecidableEq ι₁]
+              [Fintype ι₂]  [DecidableEq ι₂]
+        (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
+        (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V)) (i:ι₁) :
+        (basis_of_direct_sum W₁ W₂ B₁ B₂ hspan hindep) (Sum.inl i) ∈ W₁ := by
+        unfold basis_of_direct_sum
+        unfold Sum.elim
+        simp
 
-/- theorem det_of_block_matrix  [FiniteDimensional k V] (ι₁ ι₂: Type) (M: Matrix (ι₁ ⊕ ι₂) (ι₁ ⊕ ι₂) k)
-  (bm: Matrix.IsBlockDiagonal M) {Mblock : extractBlockDiagonal bm} : M.extractBlockDiagonal.det = (Mblock.A).det * (Mblock.B).det := by
-    sorry -/
+lemma right_mem_basis_direct_sum {ι₁ ι₂ :Type}
+              (W₁ W₂ : Submodule k V)
+              (B₁ : Basis ι₁ k W₁)
+              (B₂ : Basis ι₂ k W₂)
+              [FiniteDimensional k V] [Fintype ι₁] [DecidableEq ι₁]
+              [Fintype ι₂]  [DecidableEq ι₂]
+        (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
+        (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V)) (i:ι₂) :
+        (basis_of_direct_sum W₁ W₂ B₁ B₂ hspan hindep) (Sum.inr i) ∈ W₂ := by
+        unfold basis_of_direct_sum
+        unfold Sum.elim
+        simp
 
-#check LinearMap.BilinForm.finrank_orthogonal
-theorem ortho_complement_nondeg  (β:BilinForm k V) [FiniteDimensional k V]
+lemma not_left_in_right {s₁ s₂ : Type} (i : s₁ ⊕ s₂) (h : ¬ ∃ y:s₁, i = Sum.inl y)
+  [DecidableEq s₁] [DecidableEq s₂] : ∃ z:s₂, i = Sum.inr z := by
+  match i with
+  | Sum.inr x => use x
+  | Sum.inl y =>
+     exfalso
+     apply h
+     use y
+
+lemma not_p_inr (x : ι₂) : ¬ p ι₁ ι₂ (Sum.inr x:ι₁⊕ι₂) := by
+  unfold p
+  by_contra h
+  rcases h with ⟨y,hy⟩
+  apply_fun Sum.isRight at hy
+  simp at hy
+
+def eq (ι₁ ι₂ : Type) [Fintype ι₁] [DecidableEq ι₁]
+        [Fintype ι₂]  [DecidableEq ι₂]
+        : { i : ι₁ ⊕ ι₂ // ¬ p ι₁ ι₂ i } ≃ ι₂ where
+  toFun := by
+    intro ⟨i,hᵢ⟩
+    match i with
+    | Sum.inr z => exact z
+    | Sum.inl y =>
+       exfalso
+       apply hᵢ
+       use y
+  invFun i := ⟨Sum.inr i, not_p_inr i⟩
+  left_inv := by
+    intro ⟨ i,hᵢ ⟩
+    rcases (not_left_in_right i hᵢ) with ⟨j,hj⟩
+    unfold p at hᵢ
+    simp
+    subst hj
+    simp_all only
+  right_inv := by
+    intro i
+    exact rfl
+
+
+lemma direct_sum_basis_right_eq_basis {ι₁ ι₂ : Type} (W₁ W₂ : Submodule k V)
+              (B₁ : Basis ι₁ k W₁)
+              (B₂ : Basis ι₂ k W₂)
+              [FiniteDimensional k V] [Fintype ι₁] [DecidableEq ι₁]
+              [Fintype ι₂]  [DecidableEq ι₂]
+        (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
+        (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V)) (i:ι₂)
+         :
+        (basis_of_direct_sum W₁ W₂ B₁ B₂ hspan hindep) (Sum.inr i) = B₂ i := by
+          unfold basis_of_direct_sum
+          simp
+
+lemma eq_eq_not_p {ι₁ ι₂ : Type} (W₁ W₂ : Submodule k V)
+              (B₁ : Basis ι₁ k W₁)
+              (B₂ : Basis ι₂ k W₂)
+              [FiniteDimensional k V] [Fintype ι₁] [DecidableEq ι₁]
+              [Fintype ι₂]  [DecidableEq ι₂]
+        (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
+        (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V)) (i: ι₁ ⊕ ι₂) (h: ¬p ι₁ ι₂ i)
+        : (basis_of_direct_sum W₁ W₂ B₁ B₂ hspan hindep) ( i) = B₂ (eq ι₁ ι₂ ⟨i, h ⟩ ) := by
+        unfold basis_of_direct_sum
+        simp only [Basis.mk_apply]
+        cases i with
+        | inl i₁ =>
+          exfalso
+          exact h (by simp [p])
+        | inr i₂ =>
+          simp [Sum.elim, eq]
+
+theorem ortho_complement_nondeg (β:BilinForm k V) [FiniteDimensional k V]
   (bnd : BilinForm.Nondegenerate β)
-  (W W₁ :Submodule k V) (h : W₁ = BilinForm.orthogonal β W) (wnd : Nondeg_subspace β W)
-  [ DecidableEq ↑(Basis.ofVectorSpaceIndex k ↥(W₁))]
+  (W :Submodule k V) (wnd : Nondeg_subspace β W) (href : β.IsRefl)
   [DecidableEq ↑(Basis.ofVectorSpaceIndex k ↥W)] [DecidableEq (BilinForm.orthogonal β W)]
+  [DecidablePred (p ↑(Basis.ofVectorSpaceIndex k ↥W) ↑(Basis.ofVectorSpaceIndex k ↥(BilinForm.orthogonal β W)))]
   {brefl : LinearMap.BilinForm.IsRefl β }:
-  Nondeg_subspace β W₁ := by
-    have k₀ : W ⊓ W₁ = ⊥ := by
-      rw[h]
+  Nondeg_subspace β (BilinForm.orthogonal β W) := by
+    let ι₁ := (Basis.ofVectorSpaceIndex k ↥W)
+    let ι₂ := (Basis.ofVectorSpaceIndex k ↥(BilinForm.orthogonal β W))
+    have k₀ : W ⊓ (BilinForm.orthogonal β W) = ⊥ := by
       rw[IsCompl.inf_eq_bot]
       exact (BilinForm.restrict_nondegenerate_iff_isCompl_orthogonal brefl).mp wnd
-    have k₁ : W ⊔ W₁ = ⊤ := by
-      rw[h]
+    have k₁ : W ⊔ (BilinForm.orthogonal β W) = ⊤ := by
       ext x
       constructor
       · simp
       · simp
-        /- intro s h
-        simp at h -/
-
-        have k₁₀ : Module.finrank k (⊤ : Submodule (W ⊔ β.orthogonal W)) = Module.finrank k V := by
-          sorry
-        sorry
-      /- rw[IsCompl.sup_eq_top]
-      refine IsCompl.symm (IsCompl.symm ?_) -/
-      --rw[LinearMap.BilinForm.isCompl_orthogonal_iff_disjoint]
-      --rw[LinearMap.BilinForm.restrict_nondegenerate_iff_isCompl_orthogonal]
-      /- · exact wnd
-      · sorry -/
-            /- rw[← LinearMap.BilinForm.restrict_nondegenerate_iff_isCompl_orthogonal]
-      · exact wnd
-      · sorry -/
-    let b₁ : Basis (Basis.ofVectorSpaceIndex k W) k W := Basis.ofVectorSpace k W
-    let b₂ : Basis (Basis.ofVectorSpaceIndex k W₁) k W₁ := Basis.ofVectorSpace k W₁
-    let B : Basis ((Basis.ofVectorSpaceIndex k W) ⊕ (Basis.ofVectorSpaceIndex k W₁)) k V := by
+        let Wplus := W ⊔ β.orthogonal W
+        have k₁₀ : Wplus = W ⊔ β.orthogonal W := by
+            rfl
+        have k₁₁ : Module.finrank k (Wplus) = Module.finrank k V := by
+          rw[k₁₀, finrank_sup_eq_neg_finrank_inf_add, k₀]
+          simp
+          rw[LinearMap.BilinForm.finrank_orthogonal]
+          · rw[← add_comm]
+            refine Nat.sub_add_cancel ?_
+            apply Submodule.finrank_le
+          · exact bnd
+          · exact href
+          · exact V
+          · exact k
+        apply Submodule.eq_top_of_finrank_eq at k₁₁
+        rw[← k₁₀]
+        rw[k₁₁]
+        simp
+    let b₁ : Basis ι₁ k W := Basis.ofVectorSpace k W
+    let b₂ : Basis ι₂ k (BilinForm.orthogonal β W) := Basis.ofVectorSpace k (BilinForm.orthogonal β W)
+    let B : Basis (ι₁ ⊕ ι₂) k V := by
       apply basis_of_direct_sum
       · exact b₁
       · exact b₂
       · exact k₁
       · exact k₀
-    let M : Matrix ((Basis.ofVectorSpaceIndex k W) ⊕ (Basis.ofVectorSpaceIndex k W₁)) ((Basis.ofVectorSpaceIndex k W) ⊕ (Basis.ofVectorSpaceIndex k W₁)) k := BilinForm.toMatrix B β
-    have k₂ : Matrix.IsBlockDiagonal M := by
-      unfold Matrix.IsBlockDiagonal
-      constructor
-      · intro i j
-        unfold M
-        simp
-        unfold B
-        unfold basis_of_direct_sum
-        simp
-        refine mem_ker.mp ?_
-
-        /- refine BilinForm.isOrtho_def.mp ?_
-        have k₂₀ : (b₂ j) ∈ (⊤:Submodule k β) := by
-          exact trivial
-        have k₂₁ : (b₁ i) ∈ (⊤:Submodule k W) := by
-          exact trivial
-        apply LinearMap.BilinForm.mem_orthogonal_iff at k₂₀
-        -- apply this above theorem to k₂₀ -/
-        sorry
-      · intro b₃ b₄
-        unfold M
-        simp
-        -- i'm not sure if this is the right "direction" to be headed in
-        refine BilinForm.isOrtho_def.mp ?_
-        rw[h] at b₃
-        unfold B
-        unfold basis_of_direct_sum
-        simp
-        rw[h] at b₂
-
-        sorry
-    let Mdiag := extractBlockDiagonal k₂
-    let M₁ := Mdiag.A
-    let M₂ := Mdiag.B
-    have k₃ : M.det = M₁.det * M₂.det := by
-    -- we may want to create a separate theorem or lemma for this
-      sorry
-    have k₄ : M₂ = (BilinForm.toMatrix b₂ (β.restrict W₁)) := by
-      ext x₀ y₀
-      unfold M₂
-      unfold Mdiag
-      unfold extractBlockDiagonal
+    let M : Matrix (ι₁ ⊕ ι₂) (ι₁ ⊕ ι₂) k := BilinForm.toMatrix B β
+    let M₁ := (M.toSquareBlockProp (p ↑ι₁ ↑ι₂))
+    let M₂ := (M.toSquareBlockProp fun i ↦ ¬p (↑ι₁) (↑ι₂) i)
+    let Mdiag := Matrix.fromBlocks M₁ 0 0 M₂
+    have k₂ : ∀ i, ¬(p ι₁ ι₂) i → ∀ j , (p ι₁ ι₂) j → M i j = 0 := by
+      intro x j₀ y j₁
+      unfold p at j₀
+      unfold p at j₁
       unfold M
+      have g₀ : B y ∈ W := by
+        unfold B
+        rcases j₁ with ⟨ y₁, hy₁ ⟩
+        rw[hy₁]
+        apply left_mem_basis_direct_sum W (BilinForm.orthogonal β W) b₁ b₂ k₁ k₀
+      have g₁ : B x ∈ (BilinForm.orthogonal β W) := by
+        unfold B
+        have g₁₀ : ∃ z, x = Sum.inr z := by
+          exact not_left_in_right x j₀
+        rcases g₁₀ with ⟨ x₁, hx₁ ⟩
+        rw[hx₁]
+        apply right_mem_basis_direct_sum W (BilinForm.orthogonal β W) b₁ b₂ k₁ k₀
+      rw[LinearMap.BilinForm.mem_orthogonal_iff] at g₁
+      rw[BilinForm.toMatrix_apply]
+      exact href (B y) (B x) (href (B x) (B y) (href (B y) (B x) (g₁ (B y) g₀)))
+    have k₃ : M.det = M₁.det * M₂.det := by
+      rw[Matrix.twoBlockTriangular_det M (p ι₁ ι₂) k₂]
+    have k₄ : ∀ i, ∀ j, (M₂ i j = (BilinForm.toMatrix b₂ (β.restrict (BilinForm.orthogonal β W))) (eq  ι₁ ι₂ i) (eq ι₁ ι₂ j)) := by
+      intro x₀ y₀
+      unfold M₂ Matrix.toSquareBlockProp M BilinForm.toMatrix
       simp
       refine DFunLike.congr ?_ ?_
-      ·
-        refine LinearMap.congr_arg ?_
-
-        sorry
-      ·
-        sorry
+      · ext v
+        unfold B
+        rw[eq_eq_not_p]
+      · unfold B
+        rw[eq_eq_not_p]
     have k₅ : M₂.det ≠ 0 := by
       intro h
       rw[h] at k₃
       rw[mul_zero] at k₃
-      -- i need to have a theorem that says M.det doesnt equal zero so that I can get a contradiction
-      -- why do we know it's not zero again?? ?
-      sorry
+      have k₅₀ : M.det ≠ 0 := by
+        exact (BilinForm.nondegenerate_iff_det_ne_zero B).mp bnd
+      exact k₅₀ k₃
     unfold Nondeg_subspace
-    rw[k₄] at k₅
+    have k₆ : ((Matrix.reindex (eq ι₁ ι₂) (eq ι₁ ι₂) M₂) = (BilinForm.toMatrix b₂ (β.restrict (BilinForm.orthogonal β W)))) := by
+      exact Matrix.ext fun i j ↦ k₄ ((eq ↑ι₁ ↑ι₂).symm i) ((eq ↑ι₁ ↑ι₂).symm j)
+    have k₇ : M₂.det = (BilinForm.toMatrix b₂ (β.restrict (BilinForm.orthogonal β W))).det := by
+      rw[← k₆]
+      exact Eq.symm (Matrix.det_reindex_self (eq ↑ι₁ ↑ι₂) M₂)
+    rw[k₇] at k₅
     apply Matrix.nondegenerate_of_det_ne_zero at k₅
     exact (BilinForm.nondegenerate_toMatrix_iff b₂).mp k₅

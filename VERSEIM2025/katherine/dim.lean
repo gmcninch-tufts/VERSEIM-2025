@@ -181,7 +181,7 @@ W = Submodule.span k (Set.range (W.subtype ∘ f)) := by
 
 noncomputable
 def basis_of_direct_sum (W₁ W₂ : Submodule k V)
-        (ι₁ ι₂ : Type) [Fintype ι₁] [Fintype ι₂]
+        {ι₁ ι₂ : Type} [Fintype ι₁] [Fintype ι₂]
         (B₁ : Basis ι₁ k W₁)
         (B₂ : Basis ι₂ k W₂)
         (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
@@ -207,3 +207,29 @@ def basis_of_direct_sum (W₁ W₂ : Submodule k V)
         · exact span_range (Basis.span_eq B₂)
         · rw[hspan]
       exact Basis.mk hli hsp
+
+lemma left_mem_basis_direct_sum {ι₁ ι₂ :Type}
+              (W₁ W₂ : Submodule k V)
+              (B₁ : Basis ι₁ k W₁)
+              (B₂ : Basis ι₂ k W₂)
+              [FiniteDimensional k V] [Fintype ι₁] [DecidableEq ι₁]
+              [Fintype ι₂]  [DecidableEq ι₂]
+        (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
+        (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V)) (i:ι₁) :
+        (basis_of_direct_sum W₁ W₂ B₁ B₂ hspan hindep) (Sum.inl i) ∈ W₁ := by
+        unfold basis_of_direct_sum
+        unfold Sum.elim
+        simp
+
+lemma right_mem_basis_direct_sum {ι₁ ι₂ :Type}
+              (W₁ W₂ : Submodule k V)
+              (B₁ : Basis ι₁ k W₁)
+              (B₂ : Basis ι₂ k W₂)
+              [FiniteDimensional k V] [Fintype ι₁] [DecidableEq ι₁]
+              [Fintype ι₂]  [DecidableEq ι₂]
+        (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
+        (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V)) (i:ι₂) :
+        (basis_of_direct_sum W₁ W₂ B₁ B₂ hspan hindep) (Sum.inr i) ∈ W₂ := by
+        unfold basis_of_direct_sum
+        unfold Sum.elim
+        simp

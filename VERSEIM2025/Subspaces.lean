@@ -194,7 +194,7 @@ W = Submodule.span k (Set.range (W.subtype ∘ f)) := by
 
 noncomputable
 def basis_of_direct_sum (W₁ W₂ : Submodule k V)
-        (ι₁ ι₂ : Type) [Fintype ι₁] [Fintype ι₂]
+        {ι₁ ι₂ : Type} [Fintype ι₁] [Fintype ι₂]
         (B₁ : Basis ι₁ k W₁)
         (B₂ : Basis ι₂ k W₂)
         (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
