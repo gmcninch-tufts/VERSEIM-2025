@@ -58,6 +58,59 @@ lemma nondeg_pair (β:BilinForm k V) [Nontrivial V] (hnd : β.Nondegenerate )
   simp
   exact l₁ x
 
+/-- If β is non-degenerate, and if `v:V` is a non-zero vector, there
+    is a vector `w:V` for which `β v w ≠ 0` -/
+
+lemma nondeg_pair' (β:BilinForm k V) (hnd : β.Nondegenerate ) (v:V) 
+  (hv : v ≠ 0)
+  : ∃ w : V, β v w ≠ 0 := by 
+  by_contra h
+  push_neg at h
+  
+  
+  -- have h₁ : ker β = ⊥ := BilinForm.Nondegenerate.ker_eq_bot hnd
+  -- have : β v ≠ 0 := by
+  --   by_contra vker
+  --   have : v ∈ ker β := vker
+  --   rw [h₁] at this 
+  --   exact hv this
+  -- by_contra l₁
+  -- rw [ not_exists ] at l₁
+  -- simp at l₁
+  -- apply this
+  -- ext x
+  -- simp
+  -- exact l₁ x
+
+
+example (X:Type) (x y : X) (h:X = {z // z = x ∨ z = y})
+  (f:X →₀ k) := f.sum (fun _ t => t) =  (f x) + (f y) := by 
+  
+
+example (X:Type) (x y : X) : ↑({x,y}:Set X) → X  := fun z => id z
+
+example (v w : V) : ↑({v,w}:Set V) := by
+
+  exact ⟨w,by exact Set.mem_insert_of_mem v rfl⟩
+  
+example (v w : V) : ↑({v,w}:Set V) = { x:V // x ∈ ({v,w}:Set V) } := by rfl
+
+lemma lin_indep (β:BilinForm k V) (v w : V) (hv : β v v = 0) (hvw : β v w ≠ 0)
+  : LinearIndepOn k (id:V → V) { v , w } := by 
+  unfold LinearIndepOn
+  rw [ linearIndependent_iff ]
+  intro l hl
+  #check l
+  #check l ⟨v,_⟩
+  have (ll:{x:V // x = v ∨ x = w} →₀k) : (Finsupp.linearCombination (M:=V) (α := ↑({v,w}:Set V)) k fun x => id ↑x) ll = 
+    (ll ⟨v,by simp⟩) • v + (ll ⟨w,by simp⟩) • w  := by 
+      rw [ Finsupp.linearCombination_apply ]
+      
+  have (l:{x // x = v ∨ x = w} →₀k) : β v ((Finsupp.linearCombination (M:=V) k fun x => id ↑x) l) = 
+   (l ⟨w,by simp⟩)*(β v w) := by 
+    
+
+
 -- lemma anisotropic_vector (β:BilinForm k V) [Nontrivial V] (hnd : β.Nondegenerate ) 
 --   (hsymm: β.IsSymm) 
 --   : ∃ v, anisotropic β v := by
