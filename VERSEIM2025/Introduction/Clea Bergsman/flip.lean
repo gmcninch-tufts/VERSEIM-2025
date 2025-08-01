@@ -41,8 +41,4 @@ theorem eq_add_symm_alt  [Invertible (2:k)] {β:BilinForm k V} :
     unfold SymmComp 
     sorry
 
-
-example (a b : k) [Invertible (2:k)] (h: 2*a = 2*b ) : a = b := by
-  apply_fun (fun x => (2:k)*x)
-  simp
   

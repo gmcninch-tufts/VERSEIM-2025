@@ -99,3 +99,6 @@ theorem cp [Module.Finite k V₁] : minpoly k
   sorry
   
 #check flip 
+
+
+
