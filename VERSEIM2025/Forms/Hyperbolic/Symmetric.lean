@@ -37,7 +37,7 @@ open LinearMap (BilinForm)
 open LinearMap.BilinForm
 open BilinearForms -- This is the namespace in VERSEIM2025.Forms.Hyperbolic.BilinearForms
 open Hyperbolic -- This is the namespace in VERSEIM2025.Forms.Hyperbolic.BilinearForms
-open BilinIsomorphisms -- This is the namespace in VERSEIM2025.Forms.Hyperbolic.BilinearFormIsomorphisms
+open scoped Isometries
 
 -- symmetric bilinear form has orthogonal basis, from Mathlib
 example {V : Type u} {K : Type v}
@@ -62,6 +62,25 @@ structure FooSymm {B: BilinForm k V} (bsymm: IsSymm B) where
   anisotropic : AnisotropicSubspace B
   compl : is_orthog_direct_sum B orthog.toSubmodule anisotropic.submodule
 
+noncomputable def iso_FooSymm {B: BilinForm k V} {bsymm: IsSymm B} (H: FooSymm bsymm):
+  V ≃[k, B, B.prod_subspaces _ _] H.orthog.toSubmodule × H.anisotropic.submodule :=
+    (Isometries.from_is_orthog_direct_sum _ _ H.compl).symm
+
+noncomputable def iso_orthog_FooSymm_equal_dim
+  {B: BilinForm k V} {bsymm: IsSymm B}  {B': BilinForm k V} {bsymm': IsSymm B'}
+  (H: FooSymm bsymm) (H': FooSymm bsymm') [FiniteDimensional k V] [FiniteDimensional k V']
+  (h: Module.finrank k H.orthog.toSubmodule = Module.finrank k H'.orthog.toSubmodule):
+  H.orthog.toSubmodule ≃[k, B.restrict _, B'.restrict _] H'.orthog.toSubmodule :=
+    Hypsubspace.iso_from_iso_index_symm H.orthog H'.orthog
+    (iso_index_from_rank_eq' _ _ h) bsymm bsymm'
+
+noncomputable def iso_from_FooSymm_iso
+  {B: BilinForm k V} {bsymm: IsSymm B}  {B': BilinForm k V'} {bsymm': IsSymm B'}
+  (H: FooSymm bsymm) (H': FooSymm bsymm')
+  (π₁: H.orthog.toSubmodule ≃[k, B.restrict _, B'.restrict _] H'.orthog.toSubmodule)
+  (π₂: H.anisotropic.submodule ≃[k, B.restrict _, B'.restrict _] H'.anisotropic.submodule)
+  : V ≃[k, B, B'] V' :=
+    Isometries.trans (iso_FooSymm H) (Isometries.trans (π₁.prod π₂) (iso_FooSymm H').symm)
 
 def FooSymm.mk' {B: BilinForm k V} (bsymm: IsSymm B) (orthog : Hypsubspace B)
   (anisotropic : AnisotropicSubspace B) (span: ⊤ ≤ orthog.toSubmodule ⊔ anisotropic.submodule)
@@ -404,10 +423,137 @@ noncomputable def FooSymm_of_FooSymmPred {B: BilinForm k V} {bsymm: IsSymm B} (h
     constructor
     exact H
 
+
 noncomputable def symmetric_is_FooSymm  (p: ℕ)  {B: BilinForm k V} (bsymm: IsSymm B) (hd: B.Nondegenerate) [FiniteDimensional k V]
   [CharP k p] (hn2 : p ≠ 2):
   FooSymm bsymm :=
     FooSymm_of_FooSymmPred <| Symmetric.symmetric_is_FooSymmPred p B bsymm hd hn2
+
+-- lemma exists_bilin_one_strong {e: V} {B: BilinForm k V} (enz: e ≠ 0)
+  -- (hn: Nondegenerate B): True := sorry
+
+
+theorem isotropic_IsAlgClosed {B: BilinForm k V}  (hs: IsSymm B) (hd: Module.finrank k V ≥ 2)
+  [IsAlgClosed k]: ∃ v, B v v = 0 ∧ v ≠ 0 := by
+  have :=   Basis.ofVectorSpace k V
+  obtain ⟨f, hf⟩  := exists_linearIndependent_of_le_finrank hd
+  let v := f 0
+  let w := f 1
+  have hw_neq_zero: w ≠ 0 := sorry
+  let p: Polynomial k :=
+    Polynomial.monomial 0 (B v v)
+    + Polynomial.monomial 1 (B v w)
+    + Polynomial.monomial 2 (B w w)
+  by_cases hw: B w w = 0
+  . use w
+  sorry
+
+theorem degree_Anisotropic_IsAlgClosed {B: BilinForm k V}  (hs: IsSymm B)
+  (H: AnisotropicSubspace B) [IsAlgClosed k]: Module.finrank k H.submodule ≤ 1 := by
+  obtain ⟨W, pred⟩ := H
+  simp only
+  contrapose! pred
+  have pred: Module.finrank k W ≥ 2 := by omega
+  have: IsSymm (B.restrict W) := fun x y ↦ hs (W.subtype x) (W.subtype y)
+  have := isotropic_IsAlgClosed this pred
+  obtain ⟨⟨w, hw⟩, h1, h2⟩ := this
+  use w
+  constructor
+  . exact hw
+  constructor
+  . simpa using h1
+  . simpa using h2
+
+theorem FooSymmPred_rank_sum {B: BilinForm k V} {bsymm: IsSymm B} (H: FooSymm bsymm)
+  [FiniteDimensional k V]: Module.finrank k V = Module.finrank k (H.orthog.toSubmodule) +
+    Module.finrank k (H.anisotropic.submodule)
+    := by
+  rw [← @Submodule.finrank_sup_add_finrank_inf_eq, H.compl.ds.span,H.compl.ds.zero]
+  simp
+
+lemma arithmetic_lemma (a b c d: ℕ) (ha: a =0 ∨ a=1) (hb: b=0 ∨ b=1) (h: a+c=b+d)
+  (hc: Even c) (hd: Even d): a=b ∧ c=d := by
+  rcases ha with ha_zero | ha_one
+  . rcases hb with hb_zero | hb_one
+    . omega
+    . exfalso
+      have h1: Odd (b+d) := by
+        rw[hb_one]
+        exact Even.one_add hd
+      have h2: Even (b+d) := by
+        rw[<- h, ha_zero, zero_add]
+        exact hc
+      rw[<- Nat.not_odd_iff_even] at h2
+      exact h2 h1
+  . rcases hb with hb_zero | hb_one
+    . exfalso
+      have h1: Odd (b+d) := by
+        rw[<- h, ha_one]
+        exact Even.one_add hc
+      have h2: Even (b+d) := by
+        rw[hb_zero, zero_add]
+        exact hd
+      rw[<- Nat.not_odd_iff_even] at h2
+      exact h2 h1
+    . omega
+
+
+noncomputable def symm_iso {B: BilinForm k V} (bsymm: IsSymm B) (hn: B.Nondegenerate)
+{B': BilinForm k V'} (bsymm': IsSymm B') (hn': B'.Nondegenerate)
+(hk: ringChar k ≠ 2) [FiniteDimensional k V] [FiniteDimensional k V']
+(hd: Module.finrank k V = Module.finrank k V') [IsAlgClosed k]: V ≃[k, B, B'] V' := by
+
+  have H: FooSymm bsymm := symmetric_is_FooSymm (ringChar k) bsymm hn hk
+  have H': FooSymm bsymm' := symmetric_is_FooSymm (ringChar k) bsymm' hn' hk
+
+  have h1: Module.finrank k H.anisotropic.submodule ≤ 1 :=
+    degree_Anisotropic_IsAlgClosed bsymm H.anisotropic
+  have h2: Module.finrank k H'.anisotropic.submodule ≤ 1 :=
+    degree_Anisotropic_IsAlgClosed bsymm' H'.anisotropic
+
+  have h3: Module.finrank k H.orthog.toSubmodule + Module.finrank k H.anisotropic.submodule
+      =  Module.finrank k H'.orthog.toSubmodule + Module.finrank k H'.anisotropic.submodule
+      := by rw[<- FooSymmPred_rank_sum, <- FooSymmPred_rank_sum, hd]
+
+  have: Module.finrank k H.anisotropic.submodule = Module.finrank k H'.anisotropic.submodule ∧
+   Module.finrank k H.orthog.toSubmodule = Module.finrank k H'.orthog.toSubmodule
+     := by
+      apply arithmetic_lemma
+      . omega
+      . omega
+      . rw[add_comm, h3, add_comm]
+      . exact H.orthog.is_even_dimension
+      . exact H'.orthog.is_even_dimension
+  obtain ⟨h5, h4⟩  :=  this
+
+  have π₁: H.orthog.toSubmodule ≃[k, B.restrict _, B'.restrict _] H'.orthog.toSubmodule := by
+    apply H.orthog.iso_from_iso_index H'.orthog (iso_index_from_rank_eq' H.orthog H'.orthog h4)
+    intro i
+    let i' := iso_index_from_rank_eq' H.orthog H'.orthog h4 i
+    show (B (H.orthog.basis (Sum.inr i))) (H.orthog.basis (Sum.inl i)) =
+      (B' (H'.orthog.basis (Sum.inr i')) (H'.orthog.basis (Sum.inl i')))
+    have h1 : B (H.orthog.basis (Sum.inr i)) (H.orthog.basis (Sum.inl i))
+      = B (H.orthog.basis (Sum.inl i)) (H.orthog.basis (Sum.inr i)):= bsymm _ _
+    have h2: B' (H'.orthog.basis (Sum.inr i')) (H'.orthog.basis (Sum.inl i'))
+      = B' (H'.orthog.basis (Sum.inl i')) (H'.orthog.basis (Sum.inr i')):= bsymm' _ _
+    rw[h1 ]
+    rw[h2]
+    simp
+
+  have π₂: H.anisotropic.submodule ≃[k, B.restrict _, B'.restrict _] H'.anisotropic.submodule := by
+    by_cases hHd: Module.finrank k H.anisotropic.submodule=0
+    . have hHd': Module.finrank k H'.anisotropic.submodule=0 := by rw[<- h5, hHd]
+      exact Isometries.from_zero_dim hHd hHd'
+    . have hHd: Module.finrank k H.anisotropic.submodule=1 := by omega
+      have hHd': Module.finrank k H'.anisotropic.submodule=1 := by rw[<- h5, hHd]
+      refine Isometries.from_one_dim hHd hHd' ?_ ?_
+      . rintro ⟨v, hv⟩
+        simp only [restrict_apply, LinearMap.domRestrict_apply, Submodule.mk_eq_zero]
+        exact H.anisotropic.pred v hv
+      . rintro ⟨v, hv⟩
+        simp only [restrict_apply, LinearMap.domRestrict_apply, Submodule.mk_eq_zero]
+        exact H'.anisotropic.pred v hv
+  exact iso_from_FooSymm_iso H H' π₁ π₂
 
 
 end Symmetric
