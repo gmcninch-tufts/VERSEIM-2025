@@ -17,29 +17,64 @@ open Module
 
 --------------------------------------------------------------------------------
 
-def disjointUnion_funs {ι κ X: Type} ( f₁:ι → X) (f₂:κ → X) (u:ι ⊕ κ) : X :=
-   match u with
-    | Sum.inl x => f₁ x
-    | Sum.inr y => f₂ y
+def fun1 (m n: ℕ): (Fin n) ⊕ (Fin m) → Fin (n+m) :=
+   fun i =>
+    match i with
+    | Sum.inl x => Fin.castAdd m x
+    | Sum.inr ⟨x, h⟩  => by
+        rw [ add_comm ]
+        exact ⟨x+n, Nat.add_lt_add_right h n⟩
+
+@[simp]
+lemma fun1_left (m n: ℕ) (i: Fin n): fun1 m n (Sum.inl i) = Fin.castAdd m i := by
+   simp[fun1]
+
+@[simp]
+lemma fun1_right (m n: ℕ) (j: Fin m): fun1 m n (Sum.inr j) = Fin.natAdd n j := by
+   have ⟨j, h⟩ := j
+   simp
+   refine cast_eq_iff_heq.mpr ?_
+   refine (Fin.heq_ext_iff ?_).mpr ?_
+   . exact Nat.add_comm m n
+   exact Nat.add_comm j n
+
+def reverse_ineq {n m i: ℕ} (h: i<m+n) : i<n+m := by
+   rw[add_comm]
+   exact h
+
+def fun2 (m n: ℕ): Fin (n+m) → (Fin n) ⊕ (Fin m) :=
+   fun ⟨i,hi⟩ =>
+   if h : i < n then
+      Sum.inl (⟨↑i, h⟩: Fin n)
+   else
+      Sum.inr (Fin.subNat n (⟨i,reverse_ineq hi⟩: Fin (m+n)) (Nat.le_of_not_lt h))
+
+
+@[simp]
+lemma fun2_less (m n: ℕ) (i: Fin (n+m)) (h: ↑i< n): fun2 m n i = Sum.inl (⟨↑i, h⟩: Fin n) := by
+   simp_all[fun2]
+
+@[simp]
+lemma fun2_more (m n: ℕ) (i: Fin (n+m)) (h: ↑i≥ n): fun2 m n i =
+   Sum.inr (Fin.subNat n (⟨(↑i: ℕ),reverse_ineq i.is_lt⟩: Fin (m+n)) h) := by
+   have: ¬ ↑i< n := by exact Nat.not_lt.mpr h
+   simp[fun2,this]
 
 
 def fin_disjoint_fin_equiv_fin (n m: ℕ) : (Fin n) ⊕ (Fin m) ≃ Fin (n+m) where
-  toFun := fun i =>
-    match i with
-    | Sum.inl x => Fin.castAdd m x
-    | Sum.inr x => by
-        rw [ add_comm ]
-        exact Fin.castAdd n x
-  invFun := by
-    rintro ⟨i,_⟩
-    if h : i < n then
-       have : NeZero n := NeZero.mk (by linarith)
-       exact Sum.inl (Fin.ofNat n i)
-    else
-       have : NeZero m := NeZero.mk (by linarith)
-       exact Sum.inr (Fin.ofNat m (n-i))
-  left_inv := by sorry
-  right_inv := by sorry
+  toFun := fun1 m n
+  invFun := fun2 m n
+  left_inv := by
+   intro a
+   match a with
+   | Sum.inl i => simp
+   | Sum.inr j => simp_all
+
+  right_inv := by
+      intro a
+      by_cases h:(a<n)
+      .  simp_all
+      .  simp_all
 
 
 --------------------------------------------------------------------------------
@@ -134,7 +169,6 @@ theorem lin_indep_by_transverse_subspaces
 
 
 
-
 --------------------------------------------------------------------------------
 
 variable { k V : Type } [AddCommGroup V] [Field k] [Module k V]
@@ -146,14 +180,7 @@ def f {n m:ℕ} {W₁ W₂ : Submodule k V} (s₁:Fin n →  W₁) (s₂: Fin m 
      | Sum.inl x => exact ↑(s₁ x)
      | Sum.inr y => exact ↑(s₂ y)
 
-lemma union_span (n m:ℕ) (W₁ W₂ : Submodule k V) (s₁:Fin n →  W₁) (s₂: Fin m → W₂)
-      (h₁:(⊤:Submodule k W₁) = Submodule.span k (s₁ '' ⊤))
-      (h₂:(⊤:Submodule k W₂) = Submodule.span k (s₂ '' ⊤))
-      (h₃:⊤ = W₁ ⊔ W₂)
-    : (⊤:Submodule k V) = Submodule.span k ((f s₁ s₂) '' ⊤)  := by sorry
-
-
-lemma union_span' (W₁ W₂ : Submodule k V) (s₁ s₂ : Set V)
+lemma union_span (W₁ W₂ : Submodule k V) (s₁ s₂ : Set V)
   (hs₁: W₁ = Submodule.span k s₁)
   (hs₂: W₂ = Submodule.span k s₂)
   (hw: ⊤ = W₁ ⊔ W₂)
@@ -161,8 +188,7 @@ lemma union_span' (W₁ W₂ : Submodule k V) (s₁ s₂ : Set V)
     rw[Submodule.span_union s₁ s₂,hw,hs₁,hs₂]
 
 
-lemma union_span'' (n m :ℕ) (W₁ W₂ : Submodule k V) (s₁ s₂ : Set V)
-  (h₁:∀ x∈ s₁, s ∈ W₁) (h₂:∀ x∈s₂, s∈ W₂)
+lemma union_span' (W₁ W₂ : Submodule k V) (s₁ s₂ : Set V)
   (hs₁: W₁ = Submodule.span k s₁)
   (hs₂: W₂ = Submodule.span k s₂)
   (hw: ⊤ = W₁ ⊔ W₂)

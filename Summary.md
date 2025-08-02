@@ -1,8 +1,6 @@
 # Results/Contributions
 
-See below for a list of the major results achieved during the REU. Code inside the named folders (george, katherine, Sahan, Clea Bergsman) is just for temporary use; the final results are all found elsewhere. There is substantial code in [VERSEIM2025/Forms/Introduction](VERSEIM2025/Forms/Introduction) and [VERSEIM2025/intro](VERSEIM2025/intro), created mainly by George to teach the group Lean. 
-
-Many of the descriptions below say 'proved' in correspondence to how we think about things mathematically, however the actual results are often in the form of definitions. 
+See below for a list of the major results achieved during the REU. Many of the descriptions below say 'proved' in correspondence to how we think about things mathematically, however the actual results are often in the form of definitions. 
 
 - [Forms](/VERSEIM2025/Forms)
   - [Hyperbolic](/VERSEIM2025/Forms/Hyperbolic) - Sahan
