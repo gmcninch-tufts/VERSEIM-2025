@@ -66,7 +66,8 @@ lemma nondeg_pair' (β:BilinForm k V) (hnd : β.Nondegenerate ) (v:V)
   : ∃ w : V, β v w ≠ 0 := by 
   by_contra h
   push_neg at h
-  
+  apply hv
+  exact hnd v h  
   
   -- have h₁ : ker β = ⊥ := BilinForm.Nondegenerate.ker_eq_bot hnd
   -- have : β v ≠ 0 := by
