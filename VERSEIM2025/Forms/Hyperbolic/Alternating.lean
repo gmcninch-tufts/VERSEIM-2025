@@ -27,7 +27,7 @@ open LinearMap (BilinForm)
 open LinearMap.BilinForm
 open BilinearForms -- This is the namespace in VERSEIM2025.Forms.Hyperbolic.BilinearForms
 open Hyperbolic -- This is the namespace in VERSEIM2025.Forms.Hyperbolic.BilinearForms
-open BilinIsomorphisms -- This is the namespace in VERSEIM2025.Forms.Hyperbolic.BilinearFormIsomorphisms
+open scoped Isometries
 
 
 lemma ex_nonzero (h: Module.finrank k V > 0) : ∃(v: V), v ≠ 0  := by
@@ -114,11 +114,10 @@ theorem alternate_is_even_dimension {B: BilinForm k V} (balt: IsAlt B) (hd: B.No
 
 noncomputable def alternate_iso {B: BilinForm k V} {B': BilinForm k V'} (balt: IsAlt B) (b'alt: IsAlt B')
   (hd: B.Nondegenerate) (hd': B'.Nondegenerate) [FiniteDimensional k V] [FiniteDimensional k V']
-  (h: Module.finrank k V = Module.finrank k V'): EquivBilin B B' := by
+  (h: Module.finrank k V = Module.finrank k V'): V ≃[k, B, B'] V' := by
     let H := alternating_is_hyperbolic balt hd
     let H' := alternating_is_hyperbolic b'alt hd'
-    apply H.iso_from_iso_index H'
-    case π => exact iso_index_from_rank_eq H H' h
+    apply H.iso_from_iso_index H' (iso_index_from_rank_eq H H' h)
     intro i
     let i' := iso_index_from_rank_eq H H' h i
     show (B (H.basis (Sum.inr i))) (H.basis (Sum.inl i)) =
