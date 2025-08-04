@@ -1,0 +1,224 @@
+% Unofficial University of Cambridge Poster Template
+% https://github.com/andiac/gemini-cam
+% a fork of https://github.com/anishathalye/gemini
+% also refer to https://github.com/k4rtik/uchicago-poster
+
+\documentclass[final]{beamer}
+
+% ====================
+% Packages
+% ====================
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[size=custom,width=96,height=72,scale=1.0]{beamerposter}
+\usetheme{gemini}
+\usecolortheme{cam}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[numbers]{natbib}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.14}
+\usepackage{anyfontsize}
+\usepackage{setspace}
+
+% ====================
+% Lengths             
+% ====================
+
+% If you have N columns, choose \sepwidth and \colwidth such that
+% (N+1)*\sepwidth + N*\colwidth = \paperwidth
+\newlength{\sepwidth}
+\newlength{\colwidth}
+\setlength{\sepwidth}{0.025\paperwidth}
+\setlength{\colwidth}{0.3\paperwidth}
+
+\newcommand{\separatorcolumn}{\begin{column}{\sepwidth}\end{column}}
+
+% ====================
+% Title
+% ====================
+%change the title if you have a better idea 
+
+\title{Formalization of Linear Algebra in Lean}
+
+
+\author{Clea Bergsman \inst{1} \and Katherine Buesing \inst{2} \and Sahan Wijetunga \inst{3} \and Supervisor: Dr. George McNinch \inst{4}}
+
+\institute[shortinst]{\inst{1} Bowdoin College \samelineand \inst{2} University of Minnesota, Twin Cities \samelineand\inst{3} University of California, Los Angeles \samelineand \inst{4} Tufts University}
+
+% ====================
+% Footer (optional)
+% ====================
+
+%\footercontent{
+ % \href{https://www.example.com}{https://www.example.com} \hfill
+  %ABC Conference 2025, New York --- XYZ-1234 \hfill
+  %\href{mailto:alyssa.p.hacker@example.com}{alyssa.p.hacker@example.com}}
+% (can be left out to remove footer)
+
+% ====================
+% Logo (optional)
+% ====================
+
+% use this to include logos on the left and/or right side of the header:
+\logoright{\includegraphics[height=6cm]{Tufts_University_logo_white.png}}
+\logoleft{\includegraphics[height=10cm]{qrreal.png}}
+
+
+
+% For a picture in a block:
+ %\begin{figure}
+     % \centering
+      %\begin{tikzpicture}[scale=6]
+       % \draw[step=0.25cm,color=gray] (-1,-1) grid (1,1);
+       % \draw (1,0) -- (0.2,0.2) -- (0,1) -- (-0.2,0.2) -- (-1,0)
+        %  -- (-0.2,-0.2) -- (0,-1) -- (0.2,-0.2) -- cycle;
+     % \end{tikzpicture}
+     % \caption{A figure caption.}
+   % \end{figure}
+
+% ====================
+% Body
+% ====================
+
+\begin{document}
+\doublespacing
+% Refer to https://github.com/k4rtik/uchicago-poster
+% logo: https://www.cam.ac.uk/brand-resources/about-the-logo/logo-downloads
+%\addtobeamertemplate{headline}{}
+%{
+    %\begin{tikzpicture}[remember picture,overlay]
+     % \node [anchor=north west, inner sep=3cm] at ([xshift=0.0cm,yshift=1.0cm]current page.north west)
+     % {\includegraphics[height=4.5cm]{logos/cambridge-reversed-color-logo.eps}}; 
+  %  \end{tikzpicture}
+%}
+
+\begin{frame}[t]
+\begin{columns}[t]
+\separatorcolumn
+
+%Column 1
+\begin{column}{\colwidth}
+
+\begin{exampleblock}{{\LARGE Introduction}}
+{\large
+Lean is a programming language that allows mathematicians to prove theorems and enables correct, maintainable, and formally verified code. Lean relies on dependent type theory, which means that every expression has a type, like $\mathbb{N}$ or $\mathbb{Q} \rightarrow \mathbb{R}$. Therefore, when introducing a new item, we have to specify its type, or include enough information to have it inferred from context. Mathematical statements in lean are of the type “Prop” and can be proved or used to prove more complex propositions in Lean. Lean’s reliance on type theory removes inferences from traditional proofs by ensuring that theorems and properties apply to the specific type being used in the proof.
+}
+\end{exampleblock}
+
+\begin{exampleblock}{{\LARGE What is Formalization}}
+{\large
+Formalization is the process of proving theorems in Lean and is an increasing trend in mathematics. Formalizing involves a translation between two mathematical languages: traditional mathematical proofs and formalized proof codes. Formalization relies on Mathlib, the library of formalized proofs in Lean. The open-source nature of Mathlib facilitates mathematical collaboration between professionals on formalization, mathematicians, and graduate and undergraduate students. Mathlib also allows formalized proofs to be maintained and built upon by others.
+}
+\end{exampleblock}
+
+{\onehalfspacing
+\begin{alertblock}{{\Large Acknowledgments}}
+    \begin{columns}[T]
+        \column{0.2\textwidth}
+            \includegraphics[height=7.5cm]{NSF logo.png}
+        \column{.65\textwidth}
+        {\small We would like to thank the National Science Foundation for their support under REU Site grant DMS-2349058. We would also like to thank the Tufts Mathematics Department for their support, specifically Fulton Gonzalez, Kasso Okoudjou, Todd Quinto, and Banafsheh Akbari, for their mentorship and guidance.} %This research would not be possible without their assistance.
+    \end{columns}
+\end{alertblock}
+}
+
+\end{column}
+
+\separatorcolumn
+
+%Column 2
+\begin{column}{\colwidth}
+
+\begin{exampleblock}{{\LARGE Results}}
+
+
+{\large Our work mainly builds on mathlib’s formalization of bilinear forms. Some results are listed below. We formalized various constructions, and proved theorems grounding them. This allowed us to prove independent classification results that are both interesting in their own right and a crucial tool in developing representation theory (among other things). }
+
+% \begin{figure}[h] % h = here, t = top, b = bottom, p = page
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{diagram_results} % without extension if in same folder
+%     % \caption{Your caption here}
+%     \label{fig:example}
+% % Proves various results about bilinear forms. Notably, isCompl_orthogonal_of_restrict_nondegenerate generalizes LinearMap.BilinForm.isCompl_orthogonal_of_restrict_nondegenerate from Mathlib (drops the reflexivity requirement) - 
+% \end{figure}
+
+
+\begin{itemize}
+    \item {\large Defined a notion of isomorphism of vector spaces with bilinear forms, and proves (defines) the natural structures associated to it being an equivalence relation}
+    \item {\large Proved anisotropic, nondegenerate, symmetric, alternating forms are preserved under isomorphism}
+    \item {\large Defined Hyperbolic Spaces, which allowed us to prove alternating forms of equal finite dimension are isomorphic and nondegenerate symmetric bilinear forms of equal finite dimension over an algebraically closed field are isomorphic.}
+    \item {\large Proved Cassels-Pfister's Theorem, which yields as a corollary that a sum of $n$ squares in $F(X)$ which lies in $F[X]$ is a sum of $n$ squares in $F[X]$.} 
+    \item {\large Formalized degree constructions over $M[X] = R[X] \otimes_R M$ and compatibility with quadratic/bilinear form extensions}
+    \item {\large Proved that the orthogonal complement of a subspace is nondegenerate, and that linear independence and bases are preserved under disjoint unions for transverse subspaces}    
+    \item {\large Proved any reflexive bilinear form is alternating or symmetric and vice versa}
+    % \item {\large Proved Cassels-Pfister's Theorem, which yields as a corollary that a sum of $n$ squares in $F(X)$ which lies in $F[X]$ is a sum of $n$ squares in $F[X]$.} 
+    % \item {\large Formalized degree constructions over $M[X] = R[X] \otimes_R M$ and compatibility with quadratic/bilinear form extensions}
+\end{itemize}
+
+\end{exampleblock}
+
+{\onehalfspacing
+\begin{alertblock}{{\LARGE To view more of our work:}}
+Scan the QR code in the top left corner or go to the following link to view our full GitHub repository with our Lean proofs.
+
+\textbf{https://github.com/gmcninch-tufts/VERSEIM-2025}
+\end{alertblock}
+}
+
+\end{column}
+
+\separatorcolumn
+
+%Column 3
+\begin{column}{\colwidth}
+
+
+
+  \begin{exampleblock}{{\LARGE Future of the Project}}
+ {\large
+  We have formalized various results regarding linear algebra and quadratic forms, including alternating, symmetric, and nondegenerate bilinear forms, as well as hyperbolic and transverse subspaces. Incorporating these results into Mathlib will allow additional results to be formalized by the Lean community. Additionally, further results can be formalized using these theorems we have proved. Specifically, further results in formalizing classification results for fields (for example, finite or algebraically closed), as well as describing all non-degenerate symmetric bilinear forms $\beta$ on $V$ up to isometry.
+  }
+ % Potential next steps for formalizing related results could be formalizing classification results for a class of fields (for example, finite or algebraically closed), or describing all non-degenerate symmetric bilinear forms $\beta$ on $V$ up to isometry. 
+
+  {\large
+ %   We have formalized various results regarding bilinear and quadratic forms, as well as hyperbolic and transverse subspaces. Incorporating these results into mathlib will allow other mathematicians to further formalize theory across math. Specifically, our work would aid formalizing number theory results for finite fields, and more broadly in formalization of representation theory. 
+    }
+
+  \end{exampleblock}
+
+
+  \begin{exampleblock}{{\LARGE What Have We Learned}}
+ {\large
+  Because Lean is a language based on dependent type theory, the way we think about objects in Lean is different compared to human mathematics. For example, in human mathematics, a basis of a vector space $V$ is both simply a basis, while also being a set of vectors. In Lean, a basis could be a basis object, a set of vectors that are linearly independent and span the space, or a function taking an index set to a set of vectors that act as a basis. These are all ways that we can choose to represent a basis, but the way that we interact with these different objects in Lean varies by its type. This forces us to really think about the way that we define mathematical objects and the minute differences between them. 
+  }
+
+%\begin{itemize}
+ %   \item {\large Often the exact definition $p$ of an object isn't viewed with much importance in math, as we can just prove $p \iff q$ and then use $q$ everywhere, with the full body of standard results considered as the important part. However, due to definitional unfolding, typechecking, and strict equality holding a privileged standard in Lean, we have to think harder about the most convenient and natural primitive definition. }
+ %   \item {\large For example, the reals are defined as equivalence classes of cauchy sequences of real numbers in mathlib, whereas we typically think of the real numbers intuitively, say as the unique complete ordered field up to isomorphism, with the former definition being a proof of existence, and one of many ways of thinking about the reals. }
+ %   \item {\large This difference in thinking enforces the importance of the pedagogical choices in presentation of ideas, and in building a large cohesive body of small results that ultimately raise the collective mass of knowledge. }
+%\end{itemize}
+\end{exampleblock}
+
+{\onehalfspacing
+  \begin{alertblock}{{\Large References}}
+    {\small
+    \begin{enumerate}
+    \item Avigad, J., de Moura, L., Kong, S., $\&$ Ullrich, S. Theorem Proving in Lean 4. https://leanprover.github.io/theorem$_$proving$_$in$_$lean4/
+    \item Avigad, J., $\&$ Massot, P. (2020). Mathematics in Lean. https://leanprover-community.github.io/mathematics$_$in$_$lean/index.html
+    \item Browning, T., $\&$ Lutz, P. (2022). Formalizing Galois Theory. Experimental Mathematics, 31(2), 413–424.
+    \end{enumerate}
+    }
+
+  \end{alertblock}
+  }
+
+\end{column}
+
+\separatorcolumn
+\end{columns}
+\end{frame}
+
+\end{document}
