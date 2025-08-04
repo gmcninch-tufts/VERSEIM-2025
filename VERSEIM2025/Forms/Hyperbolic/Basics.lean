@@ -7,7 +7,7 @@ Released under the Apache 2.0 license as described in the file LICENSE.
 VERSEIM-2025 REU @ Tufts University
 -/
 
-import VERSEIM2025.Forms.BilinearIsomorphisms
+import VERSEIM2025.Forms.Isometries
 
 
 /-
@@ -21,8 +21,8 @@ variable {k V: Type} [AddCommGroup V][Field k][Module k V]
 
 open LinearMap (BilinForm)
 open LinearMap.BilinForm
-open BilinearForms -- This is the namespace in VERSEIM2025.BilinearForms
-open BilinIsomorphisms -- This is the namespace in VERSEIM2025.BilinearFormIsomorphisms
+open BilinearForms
+open scoped Isometries
 
 @[simp]
 abbrev isotropic (B: BilinForm k V) (e: V) := B e e = 0
@@ -401,7 +401,7 @@ abbrev sum_iso {I I': Type} (π: I ≃ I') : I ⊕ I ≃ I' ⊕ I' := π.sumCong
 noncomputable def Hypspace.iso_from_iso_index {V': Type} {B: BilinForm k V} [AddCommGroup V']
   [Module k V'] {B': BilinForm k V'} (H: Hypspace B) (H': Hypspace B') (π: H.I ≃ H'.I)
   (h: ∀ i, B (H.basis <| Sum.inr i) (H.basis <| Sum.inl i) = B' (H'.basis <| Sum.inr <| π i) (H'.basis <| Sum.inl <| π i) ) :
-  EquivBilin B B' := by
+  V ≃[k, B, B'] V' := by
     have (i: H.basis_index) (j: H.basis_index):  B (H.basis i) (H.basis j) = B' (H'.basis <| sum_iso π i) (H'.basis <| sum_iso π j) :=
       match i with
       | Sum.inl i => match j with
@@ -416,7 +416,39 @@ noncomputable def Hypspace.iso_from_iso_index {V': Type} {B: BilinForm k V} [Add
           . simp[h',h]
           . simp[h']
         | Sum.inr j => by simp_all
-    exact EquivBilin_of_basis_equiv (sum_iso π) this
+    exact Isometries.from_basis_equiv (sum_iso π) this
+
+noncomputable def Hypsubspace.iso_from_iso_index {V': Type} {B: BilinForm k V} [AddCommGroup V']
+  [Module k V'] {B': BilinForm k V'} (H: Hypsubspace B) (H': Hypsubspace B') (π: H.I ≃ H'.I)
+  (h: ∀ i, B (H.basis <| Sum.inr i) (H.basis <| Sum.inl i) = B' (H'.basis <| Sum.inr <| π i) (H'.basis <| Sum.inl <| π i) ) :
+  H.toSubmodule ≃[k, B.restrict _, B'.restrict _] H'.toSubmodule := by
+    have (i: H.basis_index) (j: H.basis_index):  B (H.basis i) (H.basis j) = B' (H'.basis <| sum_iso π i) (H'.basis <| sum_iso π j) :=
+      match i with
+      | Sum.inl i => match j with
+        | Sum.inl j => by simp_all
+        | Sum.inr j => by
+          by_cases h':(i = j)
+          . simp[h']
+          . simp[h']
+      | Sum.inr i =>  match j with
+        | Sum.inl j => by
+          by_cases h':(i = j)
+          . rw[h']
+            simp only [toSubmodule, basis_index, basis, Basis.coe_mk] at h
+            simp[h]
+          . simp[h']
+        | Sum.inr j => by simp_all
+    exact Isometries.from_basis_equiv (sum_iso π) this
+
+noncomputable def Hypsubspace.iso_from_iso_index_symm {V': Type} {B: BilinForm k V} [AddCommGroup V']
+  [Module k V'] {B': BilinForm k V'} (H: Hypsubspace B) (H': Hypsubspace B') (π: H.I ≃ H'.I)
+  (hb: IsSymm B) (hb': IsSymm B') :
+  H.toSubmodule ≃[k, B.restrict _, B'.restrict _] H'.toSubmodule := by
+    refine Hypsubspace.iso_from_iso_index H H' π ?_
+    intro i
+    rw[<- hb]
+    rw[<- hb']
+    simp
 
 theorem Hypspace_rank {B: BilinForm k V} (H: Hypspace B):
   Module.rank k V=2*Cardinal.mk H.I := by
@@ -478,6 +510,9 @@ theorem Hypspace.is_even_dimension {B: BilinForm k V}  [FiniteDimensional k V] (
   rw[Hypspace_finrank H]
   exact even_two_mul (Fintype.card H.I)
 
+theorem Hypsubspace.is_even_dimension {B: BilinForm k V}  [FiniteDimensional k V] (H: Hypsubspace B):
+  Even (Module.finrank k H.toSubmodule) := Hypspace.is_even_dimension H.toHypspace
+
 -- This should be provable without finiteness requirement, however proving
 -- 2 * Cardinal.mk α = 2 * Cardinal.mk β  → Cardinal.mk α = Cardinal.mk β will involve splitting
 -- into cases on α or β infinite anyway
@@ -491,6 +526,12 @@ noncomputable def iso_index_from_rank_eq {V': Type} {B: BilinForm k V} [AddCommG
   have: Fintype.card H.I=Fintype.card H'.I := by
     omega
   exact Fintype.card_eq.mp this
+
+noncomputable def iso_index_from_rank_eq' {V': Type} {B: BilinForm k V} [AddCommGroup V'] [Module k V']
+  {B': BilinForm k V'} (H: Hypsubspace B) (H': Hypsubspace B')
+  (h: Module.finrank k H.toSubmodule = Module.finrank k H'.toSubmodule)
+  [FiniteDimensional k V][FiniteDimensional k V']: H.I ≃ H'.I :=
+    iso_index_from_rank_eq H.toHypspace H'.toHypspace h
 
 protected def Basis_repr_left{B: BilinForm k V} (H: Hypspace B) (i: H.I):
   V →ₗ[k] k where
