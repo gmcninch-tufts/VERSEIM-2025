@@ -11,6 +11,7 @@ import Mathlib.Tactic
 import Mathlib.LinearAlgebra.BilinearForm.Orthogonal
 import VERSEIM2025.Forms.Bilinear
 
+#check BilinearForms.alt_is_reflexive
 /-
   Proofs that any reflexive form is alternating or symmetric
 -/
@@ -206,3 +207,12 @@ theorem refl_is_alt_or_symm {B: BilinForm F V} (h: B.IsRefl):
       exact (AddSemiconjBy.eq_zero_iff 0 (congrFun (congrArg HAdd.hAdd (h₃ u v w)) 0)).mp rfl
     apply proptwopointsix (F := F) (V := V)
     · exact h₄
+
+theorem refl_iff_alt_or_symm {β : BilinForm F V} : β.IsRefl ↔ (β.IsAlt ∨ β.IsSymm) := by
+  constructor
+  · intro h
+    exact refl_is_alt_or_symm h
+  · intro h
+    cases h with
+    | inl h₁ => exact IsAlt.isRefl h₁
+    | inr h₂ => exact IsSymm.isRefl h₂
