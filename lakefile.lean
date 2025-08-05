@@ -10,7 +10,7 @@ package «VERSEIM-2025» where
   -- srcDir := "VERSEIM2025"
 
 require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git"
+  "https://github.com/leanprover-community/mathlib4.git"@"928758ac3743dc7f171fc66f450506723896f1c5"
 
 @[default_target]
 lean_lib «VERSEIM2025» where
