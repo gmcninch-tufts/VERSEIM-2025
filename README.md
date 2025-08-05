@@ -8,6 +8,10 @@ VERSEIM-REU](https://sites.tufts.edu/verseimreu/).
   
 - See [here](Summary.md) for a list of the major results. 
 
+- This repo reflects the work of the summer; we don't plan to keep
+  updating it. Some [follow-up work is being carried out
+  here](https://github.com/sahanwijetunga/Hyperbolic).
+
 - Here are [slides for the presentations](Presentations) made in the REU seminar during
   the program
 
