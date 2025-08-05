@@ -10,8 +10,8 @@ package «VERSEIM-2025» where
   -- srcDir := "VERSEIM2025"
 
 require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git"@"928758ac3743dc7f171fc66f450506723896f1c5"
-
+  "https://github.com/leanprover-community/mathlib4.git"@"v4.22.0-rc4"
+  
 @[default_target]
 lean_lib «VERSEIM2025» where
   -- add any library configuration options here
