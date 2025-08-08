@@ -1,0 +1,513 @@
+\documentclass[svgnames]{beamer}
+%%\documentclass[svgnames,handout]{beamer}
+
+%\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{minted}
+%\usepackage{hyperref}
+\mode<beamer>{\usetheme{Antibes}}
+\usecolortheme {dolphin}
+\useoutertheme{smoothtree} % Alternatively: miniframes, infolines, split
+\useinnertheme{rectangles}
+
+
+\usepackage[x11names]{xcolor}
+%\definecolor{Dark_Green}{rgb}{7, 74, 26}
+%\setbeamercolor{block title}{bg=DarkGreen, fg=white}
+%\setbeamercolor*{enumerate item}{fg=DarkGreen}
+%\setbeamercolor{itemize item}{fg=DarkGreen}
+%\setbeamercolor{itemize subitem}{fg=DarkGreen}
+%\setbeamercolor{enumerate item}{fg=DarkGreen}
+%\setbeamercolor{enumerate subitem}{fg=DarkGreen}
+%\setbeamercolor{enumerate subsubitem}{fg=DarkGreen}
+%%--------------------------------------------------------------------------------
+%%\usepackage[svgnames]{xcolor}
+\usepackage{mathrsfs}
+\usepackage{tikz-cd}
+
+\usepackage{fontspec}
+\setmonofont{FreeMono}
+\setmainfont{FreeSerif}
+
+\usepackage{unicode-math}
+
+\usepackage[dvipsnames]{xcolor}
+
+\usepackage{amsthm}
+\usepackage{thmtools}
+%\usepackage{cleveref}
+
+%\usepackage[cachedir=mintedcache]{minted}
+\usepackage{minted}
+\usemintedstyle{tango}
+\setminted[bash]{bgcolor=NavajoWhite}
+\setminted[output]{bgcolor=NavajoWhite}
+\setminted[python]{bgcolor=Lavender}
+
+\newmintinline[lean]{lean4}{bgcolor=lavender}
+\newminted[leancode]{lean4}{fontsize=\footnotesize,bgcolor=Lavender}
+\setminted[lean]{bgcolor=LightBlue}
+
+\usepackage{newunicodechar}
+\newfontfamily{\freeserif}{DejaVu Sans}
+\newunicodechar{✝}{\freeserif{✝}}
+\newunicodechar{∀}{\ensuremath{\forall}}
+\newunicodechar{→}{\ensuremath{\to}}
+\newunicodechar{≤}{\ensuremath{\le}}
+\newunicodechar{⧸}{/}
+
+
+\newcommand{\Z}{\mathbf{Z}}
+\newcommand{\Q}{\mathbf{Q}}
+\newcommand{\R}{\mathbf{R}}
+\newcommand{\C}{\mathbf{C}}
+\newcommand{\F}{\mathbf{F}}
+\newcommand{\N}{\mathbf{N}}
+
+\newcommand{\LL}{\mathscr{L}}
+\newcommand{\pp}{\mathbf{p}}
+\newcommand{\xx}{\mathbf{x}}
+\newcommand{\yy}{\mathbf{y}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\ww}{\mathbf{w}}
+%%--------------------------------------------------------------------------------
+\author{Katherine Buesing}
+\date{2025-08-06}
+\title{Formalization and Linear Algebra}
+\hypersetup{
+ pdfauthor={Clea Bergsman, Katherine Buesing, Sahan Wijetunga},
+ pdftitle={Formalization and Finite Algebra},
+ pdfkeywords={modelling},
+ pdfsubject={},
+ pdfcreator={Emacs 31.0.50 (Org mode 9.7.11)}, 
+ pdflang={English}}
+\usepackage{biblatex}
+
+\begin{document}
+\section{Introduction}
+\subsection{Table of Contents}
+% table of contents slide 
+\maketitle
+\begin{frame}{Outline}
+
+{\scriptsize
+\tableofcontents
+}
+
+\end{frame}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+
+\subsection{Formalization and Lean}
+\begin{frame}{What is Formalization?}
+\begin{itemize}[<+->]
+\item Formalization is a way of creating mathematical proofs or definitions using a programming language, such as Lean. However, other proof assistants exist such as Isabelle or Coq. 
+\item Formalization allows us to have 100-percent certainty that a statement is correct.
+\item Although the current body of work of formalized mathematics is not very large, someday it may be vast enough that new mathematics can be formalized at the same time as its discovery.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:o},fragile]{What is Lean?}
+
+\begin{itemize}[<+->]
+\item Lean is a computer language based on dependent type theory, which means that an object's type can depend on its value.
+\item For example, Java is a strongly typed language, which sounds like it might be similar, but isn't necessarily.
+\item In Java, a number has the same type as another number, regardless of its value. In Lean, 0 has a different type from 1, even though they are both natural numbers. This is because its type depends on its value. 
+\item This dependent type theory allows us to be able to precisely formalize mathematic expressions. 
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:o},fragile]{0 vs. 1}
+
+\begin{columns}
+\column{0.5\textwidth}
+{
+\begin{minted}[]{lean}
+#check 0
+#check 1
+\end{minted}
+}
+
+\column{0.5\textwidth}
+{
+\begin{minted}[]{lean}
+0 : ℕ
+1 : ℕ
+\end{minted}
+}
+
+\end{columns}
+\end{frame}
+
+
+
+
+%\setbeamertemplate{blocks}[rounded][shadow=true]
+
+
+
+\section{Basis of a Direct Sum}
+\subsection{Definitions}
+
+
+\subsection{Linear Independence of Transverse Subspaces}
+
+\begin{frame}[label={sec:o},fragile]{Theorem Statement}
+
+\begin{block}{Theorem}
+Given a vector space $V$ and two subspaces $W_1$ and $W_2$ such that the intersection of $W_1$ and $W_2$ is the zero element. Pick bases $b_1$ and $b_2$ for subspaces $W_1$ and $W_2$, respectively. Then we can conclude that the disjoint union of $b_1$ and $b_2$ is also linearly independent. 
+\end{block}
+
+
+{\scriptsize 
+\begin{minted}[]{lean}
+theorem lin_indep_by_transverse_subspaces
+   (k V : Type) [Field k] [AddCommGroup V] 
+   [Module k V] (I₁ I₂ : Type) [Fintype I₁] 
+   [Fintype I₂] (b₁ : I₁ → V) (b₂ : I₂ → V)
+   (b1_indep : LinearIndependent k b₁)
+   (b2_indep : LinearIndependent k b₂)
+   (W₁ W₂ : Submodule k V) (h_int : W₁ ⊓ W₂ = ⊥)
+   (hbw1 : ∀ i, b₁ i ∈ W₁) (hbw2 : ∀ i, b₂ i ∈ W₂)
+   [DecidableEq I₁] [DecidableEq I₂]
+   : LinearIndependent k (Sum.elim b₁ b₂) :=
+\end{minted}
+}
+
+\end{frame}
+
+\subsection{Basis of a Direct Sum Construction}
+\begin{frame}[label={sec:o},fragile]{Definition Statement}
+
+\begin{block}{Definition}
+Given a vector space $V$, and two subspaces $W_1$ and $W_2$ such that the intersection of $W_1$ and $W_2$ is the zero element, and their direct sum is equal to $V$. Pick bases $b_1$ and $b_2$ of $W_1$ and $W_2$, respectively. Then, $b_1 \cup b_2$ is a basis for V. 
+\end{block}
+
+{\scriptsize
+\begin{minted}[]{lean}
+def basis_of_direct_sum (W₁ W₂ : Submodule k V)
+        {ι₁ ι₂ : Type} [Fintype ι₁] [Fintype ι₂]
+        (B₁ : Basis ι₁ k W₁) (B₂ : Basis ι₂ k W₂)
+        (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
+        (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V))
+        [DecidableEq ι₁] [DecidableEq ι₂] 
+        [FiniteDimensional k V]:
+       Basis (ι₁ ⊕ ι₂) k V 
+\end{minted}
+}
+\end{frame}
+
+\subsection{Additional Basis of Direct Sum Lemmas}
+\begin{frame}[label={sec:o},fragile]{Additional Lemmas}
+
+{\tiny
+\begin{minted}[]{lean}
+lemma left_mem_basis_direct_sum {ι₁ ι₂ :Type}
+    (W₁ W₂ : Submodule k V) (B₁ : Basis ι₁ k W₁)(B₂ : Basis ι₂ k W₂) 
+    [FiniteDimensional k V] [Fintype ι₁] [DecidableEq ι₁] [Fintype ι₂]  
+    [DecidableEq ι₂] (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V)) 
+    (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V)) (i:ι₁) :
+        (basis_of_direct_sum W₁ W₂ B₁ B₂ hspan hindep) (Sum.inl i) ∈ W₁ := by
+\end{minted}
+
+\begin{minted}[]{lean}
+lemma right_mem_basis_direct_sum {ι₁ ι₂ :Type}
+    (W₁ W₂ : Submodule k V) (B₁ : Basis ι₁ k W₁) (B₂ : Basis ι₂ k W₂)
+    [FiniteDimensional k V] [Fintype ι₁] [DecidableEq ι₁]
+    [Fintype ι₂]  [DecidableEq ι₂] (hspan : W₁ ⊔ W₂ = (⊤: Submodule k V))
+    (hindep : W₁ ⊓ W₂ = (⊥:Submodule k V)) (i:ι₂) :
+        (basis_of_direct_sum W₁ W₂ B₁ B₂ hspan hindep) (Sum.inr i) ∈ W₂ := by
+\end{minted}
+
+}
+
+\end{frame}
+
+\section{Reflexivity of a Bilinear Form iff Alternating or Symmetric}
+\subsection{Definitions}
+
+\begin{frame}{What is a Bilinear Form?}
+
+\begin{Definition}
+A bilinear form $\beta$ on a vector space $V$ over a field $k$ is a function $\beta : V \times V \rightarrow k $ that is linear in both variables.
+\end{Definition}
+
+\end{frame}
+
+\begin{frame}{Types of Bilinear Forms}
+\begin{block}{Reflexive Bilinear Forms}
+A bilinear form $\beta$ on a vector space $V$ is reflexive if $\forall u, v \in V, \beta(u,v) = 0 \implies \beta(v,u) = 0$
+\end{block}
+\begin{block}{Symmetric Bilinear Forms}
+A bilinear form $\beta$ on a vector space $V$ is symmetric if $\forall u, v \in V, \beta(u,v) = \beta(v,u) $
+\end{block}
+\begin{block}{Alternating Bilinear Forms}
+A bilinear form $\beta$ on a vector space $V$ is alternating if $\forall v \in V, \beta(v,v) = 0$
+\end{block}
+\end{frame}
+
+
+
+\subsection{Grove's Lemma}
+\begin{frame}[label={sec:o}, fragile]{Lemma Statement}
+\begin{block}{Lemma}
+Suppose that $\beta$ is a bilinear form on a vector space $V$ that satisfies the following condition:
+\begin{itemize}
+\item $\beta(u,v)\beta(w,u) = \beta(v,u)\beta(u,w)$
+\end{itemize}
+$\forall u,v,w \in V$. Then, we can conclude that $\beta$ is a symmetric or alternating bilinear form.
+\end{block}
+
+{\scriptsize
+\begin{minted}[]{lean}
+lemma proptwopointsix {β: BilinForm k V}
+(h : ∀ (u v w : V), (((β u) v) * ((β w) u)) = 
+(((β v) u) * ((β u) w))): 
+β.IsAlt ∨ β.IsSymm := 
+\end{minted}
+}
+
+\end{frame}
+
+\subsection{Reflexivity implies Alternating or Symmetric}
+\begin{frame}[label={sec:o}, fragile]{Theorem Statement}
+\begin{block}{Theorem}
+Let $\beta$ be a reflexive bilinear form on a vector space $V$. Then, $\beta$ is also symmetric or alternating.
+\end{block}
+
+{\scriptsize
+\begin{minted}[]{lean}
+theorem refl_is_alt_or_symm {β: BilinForm k V} (h: β.IsRefl) 
+[FiniteDimensional k V] :
+    β.IsAlt  ∨ β.IsSymm :=
+\end{minted}
+}
+
+\end{frame}
+
+\subsection{Reflexivity iff Alternating or Symmetric}
+\begin{frame}[label={sec:o}, fragile]{Theorem Statement}
+\begin{block}{Theorem}
+$\beta$ is a reflexive bilinear form on a vector space $V$ if and only if $\beta$ is alternating or symmetric. 
+\end{block}
+
+{\scriptsize
+\begin{minted}[]{lean}
+theorem refl_iff_alt_or_symm {β : BilinForm F V}
+: β.IsRefl ↔ (β.IsAlt ∨ β.IsSymm) := by
+  constructor 
+  · intro h 
+    exact refl_is_alt_or_symm h  
+  · intro h 
+    cases h with 
+    | inl h₁ => exact IsAlt.isRefl h₁
+    | inr h₂ => exact IsSymm.isRefl h₂ 
+\end{minted}
+}
+\end{frame}
+
+\section{The Orthogonal Complement of a Nondegenerate Subspace}
+\subsection{Definitions}
+
+\begin{frame}{Orthogonal Complement}
+\begin{block}{Definition}
+Given a subspace $W$ of a vector space $V$, the orthogonal complement of $W$ is the set of all vectors that are orthogonal to every vector in $W$. Additionally, the orthogonal complement of $W$ is also a subspace of $V$.
+\end{block}
+
+\end{frame}
+
+\begin{frame}[label={sec:o}, fragile]{Nondegenerate Definitions}
+
+\begin{Theorem}
+Let $\beta$ be a bilinear form on $V$, $M=[\beta(v_i,v_j)]$, and $v_1, . . . , v_n$ a basis of $V$.
+The following are equivalent:
+\begin{itemize}
+    \item $det(M) \neq 0$
+    \item $\forall w \in V $ $\beta (v,w) = 0 \implies v=0$
+    \item $\forall v \in V $ $\beta (v,w) = 0 \implies w=0$
+    \item $\beta$ is a nondegenerate bilinear form 
+\end{itemize}
+\end{Theorem}
+
+\begin{Definition}
+A nondegenerate subspace $W$ is a subspace with a nondegenerate bilinear form $\beta$ such that the determinant of the matrix representation of $\beta$ restricted to the subspace $W$ is nonzero.
+\end{Definition}
+
+
+\end{frame}
+
+\begin{frame}{Block Diagonal Matrix Definition}
+\begin{Definition}
+A two-block diagonal matrix $M$ is a $m$  by $m$ matrix such that $m = \iota_1 + \iota_2$, and the following are true:
+\begin{itemize}
+    \item The upper left hand $\iota_1$ by $\iota_1$ block of the matrix can have any values
+    \item The lower right hand $\iota_2$ by $\iota_2$ block of the matrix can have any values
+    \item The rest of the values of the matrix are zero 
+\end{itemize}
+\end{Definition}
+
+A two-block diagonal matrix can be represented by 
+\begin{bmatrix}
+A & 0 \\
+0 & B 
+\end{bmatrix}
+where A is an $\iota_1$ by $\iota_1$ matrix with any values and B is an $\iota_2$ by $\iota_2$ matrix with any values.
+
+\end{frame}
+
+
+\subsection{p and eq Constructions}
+
+\begin{frame}[label={sec:o},fragile]{p Construction}
+\begin{block}{Definition}
+$p$ is a predicate that takes a matrix $M$, which is an $m$ by $m$ matrix where $m = \iota_1 + \iota_2$, and maps it to True for every element in the upper left $\iota_1$ by $\iota_1$ block of the matrix, and False for every other element.
+\end{block}
+
+{\scriptsize
+\begin{minted}[]{lean}
+def p (ι₁ ι₂ : Type) [Fintype ι₁] [Fintype ι₂] [DecidableEq ι₁] 
+[DecidableEq ι₂]: ι₁ ⊕ ι₂ → Prop := by
+  intro i
+  exact (∃ (y : ι₁), i = Sum.inl y)
+\end{minted}
+}
+This predicate is the construction we use to extract the blocks from a block diagonal matrix. 
+Predicates such as these are one example of a construction you can make in Lean that is not a proof. 
+
+\end{frame}
+
+\begin{frame}[label={sec:o},fragile]{eq Construction}
+
+{\scriptsize
+\begin{minted}[]{lean}
+def eq (ι₁ ι₂ : Type) [Fintype ι₁] [DecidableEq ι₁]
+        [Fintype ι₂]  [DecidableEq ι₂]
+        : { i : ι₁ ⊕ ι₂ // ¬ p ι₁ ι₂ i } ≃ ι₂ where
+\end{minted}
+}
+This equivalence is a construction we need to use so that Lean is able to directly infer that $\iota_2$ and $\neg p \iota_1 \iota_2$ are equivalent.
+This is another example of something we construct in Lean that is not a proof, as this is a function.
+
+\end{frame}
+
+\subsection{Theorem Statement}
+
+\begin{frame}[label={sec:o},fragile]{Theorem Statement}
+
+
+\begin{block}{Theorem}
+Let $V$ be a vector space with a subspace $W$. Assume you have a nondegenerate, reflexive bilinear form $\beta$, and let $W$ be a nondegenerate subspace. The orthogonal complement of $W$ is also nondegenerate.
+\end{block}
+
+{\scriptsize
+\begin{minted}[]{lean}
+theorem ortho_complement_nondeg (β:BilinForm k V) 
+[FiniteDimensional k V] (bnd : BilinForm.Nondegenerate β) 
+(W :Submodule k V) (wnd : Nondeg_subspace β W) (href : β.IsRefl)
+  [DecidableEq ↑(Basis.ofVectorSpaceIndex k ↥W)] 
+  [DecidableEq (BilinForm.orthogonal β W)]
+  [DecidablePred (p ↑(Basis.ofVectorSpaceIndex k ↥W)
+  ↑(Basis.ofVectorSpaceIndex k ↥(BilinForm.orthogonal β W)))]
+  {brefl : LinearMap.BilinForm.IsRefl β }:
+  Nondeg_subspace β (BilinForm.orthogonal β W) := by
+\end{minted}
+}
+\end{frame}
+
+\begin{frame}[label={sec:o},fragile]{Proof Excerpts}
+
+{\tiny
+\begin{minted}[]{lean}
+have k₂ : ∀ i, ¬(p ι₁ ι₂) i → ∀ j , (p ι₁ ι₂) j → M i j = 0 := by
+      intro x j₀ y j₁
+      unfold p at j₀
+      unfold p at j₁
+      unfold M
+      have g₀ : B y ∈ W := by
+        unfold B
+        rcases j₁ with < y₁, hy₁ >
+        rw[hy₁]
+        apply left_mem_basis_direct_sum W (BilinForm.orthogonal β W) b₁ b₂ k₁ k₀
+      have g₁ : B x ∈ (BilinForm.orthogonal β W) := by
+        unfold B
+        have g₁₀ : ∃ z, x = Sum.inr z := by
+          exact not_left_in_right x j₀
+        rcases g₁₀ with < x₁, hx₁ >
+        rw[hx₁]
+        apply right_mem_basis_direct_sum W (BilinForm.orthogonal β W) b₁ b₂ k₁ k₀
+\end{minted}
+
+\begin{minted}[]{lean}
+have k₄ : ∀ i, ∀ j, (M₂ i j = 
+(BilinForm.toMatrix b₂ (β.restrict (BilinForm.orthogonal β W))) (eq  ι₁ ι₂ i) (eq ι₁ ι₂ j)) := by
+      intro x₀ y₀
+      unfold M₂ Matrix.toSquareBlockProp M BilinForm.toMatrix
+      simp
+      refine DFunLike.congr ?_ ?_
+      · ext v
+        unfold B
+        rw[eq_eq_not_p]
+      · unfold B
+        rw[eq_eq_not_p]
+\end{minted}
+}
+
+\end{frame}
+
+
+\section{Conclusion}
+\subsection{Closing Remarks}
+
+\begin{frame}{Dependent Type Theory}
+\begin{itemize}[<+->]
+\item Dependent type theory in Lean can make it difficult to infer which mathematical objects are equivalent; sometimes Lean is able to infer equalities between types, but other times we have to construct these equalities ourselves. 
+\item Certain theorems work with certain types but not others. This forces us to think about how we choose to represent mathematical objects and the different ways they can exist.
+\item For example, a basis could be both simply a basis and also a set of linearly independent vectors that span a space in human mathematics.
+\item In Lean it can only be one of these things, even if they have the same value. While some type coercions can be performed, we still have to make a conscious decision about the best way to represent each object.
+
+\end{itemize}
+\end{frame}
+
+\subsection{References}
+\begin{frame}{References}
+\begin{enumerate}
+    \item Avigad, J., de Moura, L., Kong, S., $\&$ Ullrich, S. Theorem Proving in Lean 4. https://leanprover.github.io/theorem$_$proving$_$in$_$lean4/
+    \item Avigad, J., $\&$ Massot, P. (2020). Mathematics in Lean. https://leanprover-community.github.io/mathematics$_$in$_$lean/index.html
+    \item Browning, T., $\&$ Lutz, P. (2022). Formalizing Galois Theory. Experimental Mathematics, 31(2), 413–424.
+    \item Grove, L. (2002). \textit{Classical Groups and Geometric Algebra}.
+    \item Massot, P. (2021). Why formalize mathematics?. https://www.imo.universite-paris-saclay.fr/~patrick.massot/files/exposition/why$_$formalize.pdf
+
+
+%\item 
+%\item Avigad, J. Buzzard, K. Lewis R. Y. Massot, P. (2020). \textit{Mathematics in Lean}. 
+%\item Liesen, J. Mehrmann, V. (2015). \textit{Linear Algebra}.
+%\item Reich, E. (2005, February 28). Bilinear Forms. Retrieved July 10, 2005, from https://math.mit.edu/~dav/bilinearforms.pdf
+
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+	    \begin{center}
+	        \textbf{Thank you!}\\
+	        
+	        Special thanks to Dr. George McNinch, the REU, and NSF.
+         \bigbreak
+         \LARGE
+       
+	    \end{center}
+\end{frame}
+
+
+
+\end{document} 
