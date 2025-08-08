@@ -1,0 +1,721 @@
+\documentclass[svgnames]{beamer}
+%%\documentclass[svgnames,handout]{beamer}
+
+%\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+%\usepackage{hyperref}
+\mode<beamer>{\usetheme{Berlin}}
+\usecolortheme {dolphin}
+\useoutertheme{miniframes} % Alternatively: miniframes, infolines, split
+\useinnertheme{circles}
+
+
+\usepackage[x11names]{xcolor}
+\usepackage{setspace}
+%\definecolor{Dark_Green}{rgb}{7, 74, 26}
+%\setbeamercolor{block title}{bg=DarkGreen, fg=white}
+%\setbeamercolor*{enumerate item}{fg=DarkGreen}
+%\setbeamercolor{itemize item}{fg=DarkGreen}
+%\setbeamercolor{itemize subitem}{fg=DarkGreen}
+%\setbeamercolor{enumerate item}{fg=DarkGreen}
+%\setbeamercolor{enumerate subitem}{fg=DarkGreen}
+%\setbeamercolor{enumerate subsubitem}{fg=DarkGreen}
+%%--------------------------------------------------------------------------------
+%%\usepackage[svgnames]{xcolor}
+\usepackage{mathrsfs}
+\usepackage{tikz-cd}
+
+\usepackage{fontspec}
+\setmonofont{FreeMono}
+\setmainfont{FreeSerif}
+
+\usepackage{unicode-math}
+
+\usepackage[dvipsnames]{xcolor}
+
+\usepackage{amsthm}
+\usepackage{thmtools}
+\usepackage{comment}
+%\usepackage{cleveref}
+
+%\usepackage[cachedir=mintedcache]{minted}
+\usepackage{minted}
+\usemintedstyle{tango}
+\setminted[bash]{bgcolor=NavajoWhite}
+\setminted[output]{bgcolor=NavajoWhite}
+\setminted[python]{bgcolor=Lavender}
+
+\newmintinline[lean]{lean4}{bgcolor=lavender}
+\newminted[leancode]{lean4}{fontsize=\footnotesize,bgcolor=Lavender}
+\setminted[lean]{bgcolor=LightBlue}
+
+\usepackage{newunicodechar}
+\newfontfamily{\freeserif}{DejaVu Sans}
+\newunicodechar{✝}{\freeserif{✝}}
+\newunicodechar{∀}{\ensuremath{\forall}}
+\newunicodechar{→}{\ensuremath{\to}}
+\newunicodechar{≤}{\ensuremath{\le}}
+\newunicodechar{⧸}{/}
+
+
+\newcommand{\Z}{\mathbf{Z}}
+\newcommand{\Q}{\mathbf{Q}}
+\newcommand{\R}{\mathbf{R}}
+\newcommand{\C}{\mathbf{C}}
+\newcommand{\F}{\mathbf{F}}
+\newcommand{\N}{\mathbf{N}}
+
+\newcommand{\LL}{\mathscr{L}}
+\newcommand{\pp}{\mathbf{p}}
+\newcommand{\xx}{\mathbf{x}}
+\newcommand{\yy}{\mathbf{y}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\ww}{\mathbf{w}}
+%%--------------------------------------------------------------------------------
+\author{Clea Bergsman}
+\date{2025-08-06}
+\title{Formalization of Bilinear Forms Proofs}
+\hypersetup{
+ pdfauthor={Clea Bergsman, Katherine Buesing, Sahan Wijetunga},
+ pdftitle={Formalization and Finite Algebra},
+ pdfkeywords={modelling},
+ pdfsubject={},
+ pdfcreator={Emacs 31.0.50 (Org mode 9.7.11)}, 
+ pdflang={English}}
+\usepackage{biblatex}
+
+\begin{document}
+\section{Introduction}
+% table of contents slide 
+\maketitle
+\begin{frame}{Outline}
+\tableofcontents
+\end{frame}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+
+%\section{Classifications}
+%\subsection{Definitions}
+\begin{frame} {Bilinear Forms}
+   
+\begin{block}{Definition}
+A \textbf {bilinear form} is a map $\beta : V\times W \to K $, where V and W are K-vector spaces and K is a field, when
+\begin{enumerate}
+    \item $\beta (v_1 + v_2 , w) = \beta (v_1 , w) +\beta ( v_2,w)$
+    \item $\beta ( v, w_1 + w_2) = \beta (v,w_1) +\beta (v , w_2)$
+    \item $\beta(\lambda v, w) = \beta (v, \lambda w) = \lambda \beta (v , w)$
+\end{enumerate}
+hold $\forall$ $v\in V$, $w\in W$, and $\lambda \in K$.
+\end{block}
+\end{frame}
+
+\begin{comment}
+\begin {frame} {Special Properties of Bilinear Forms}
+\begin{block}{}
+A bilinear form $\beta$ is \textbf{symmetric} if 
+\begin{itemize}
+    \item $\beta (v,w) = \beta (w,v)$ $\forall$ $v,w \in V$
+\end{itemize}
+\end{block}
+%\vspace{1cm}
+
+
+\begin{block}{}
+A bilinear form $\beta$ is \textbf{anti-symmetric} or \textbf{alternating} if
+\begin{enumerate}
+    \item $\beta (v,v) = 0$, $\forall$ $v \in V$
+    \item $\beta (v,w) = -\beta (w,v)$, $\forall$ $v,w \in V$
+\end{enumerate}
+\end{block}
+%\vspace{1cm}
+
+\begin{block}{}
+A bilinear form $\beta$ is \textbf{reflexive} if
+\begin{itemize}
+    \item $\beta(v,w)=0\iff\beta(w,v)=0$ $\forall$ $v,w\in V$
+\end{itemize}
+\end{block}
+
+\end{frame}
+\end{comment}
+
+\begin{comment}
+\begin{frame} [label={sec:proof_comparison},fragile] {Alternating $\rightarrow$ Skew}
+\begin{block}{}
+Lemma: If $\beta (v,v) = 0$, $\forall$ $v$, then $\beta (v,w) = -\beta(w,v)$, $\forall$ $v,w$.
+\end{block}
+
+\begin{itemize}
+
+{\tiny
+\begin{minted}[]{lean}
+lemma skew_of_alt (β:V →l[k] V →l[k] k) (ha : Alt β) :
+  Skew β := by
+  intro v w 
+  have h0 : β (v+w) = β v + β w := by simp
+  have h : β (v+w) (v+w) 
+  = (β v) v + (β w) v + (β v) w + (β w) w := 
+    calc 
+    (β (v+w)) (v+w) = (β v) (v+w) + (β w) (v+w) := 
+    by rw [LinearMap.BilinForm.add_left]
+    _ = (β v) v + (β w) v + (β v) w + (β w) w :=
+    by rw [LinearMap.BilinForm.add_right v v w, 
+    LinearMap.BilinForm.add_right w v w, ← add_assoc]; ring
+  have hv : β v v = 0 := by apply ha
+  have hw : β w w = 0 := by apply ha
+  have hvw : β (v+w) (v+w) = 0 := by apply ha
+  rw [hv, hw, hvw, zero_add, add_zero] at h
+  have h1 : (β v) w = -(β w) v := by 
+  exact Eq.symm (LinearMap.BilinForm.IsAlt.neg_eq ha w v)
+  exact h1
+\end{minted}
+}
+\end{itemize}
+\end{frame}
+\end{comment}
+
+\begin{comment}
+\begin{frame} [label={sec:proof_comparison},fragile] {Alternating $\iff$ Skew}
+\begin{block}{}
+Lemma: $\beta (v,v) = 0$, $\forall$ $v$ if and only if $\beta (v,w) = -\beta(w,v)$, $\forall$ $v,w$.
+\end{block}
+\begin{itemize}
+{\scriptsize
+\begin{minted}[]{lean}
+lemma alt_iff_skew (β:V →[k] V →[k] k) [CharZero k]
+   : Alt β ↔ Skew β := by
+   constructor
+   intro ha
+   apply skew_of_alt
+   exact ha
+   intro hs
+   intro v
+   have h1 : β v v = -β v v := by apply hs
+   have h2 : β v v + β v v = β v v + -β v v := by
+     apply (@add_left_cancel_iff _ _ _ (β v v) (β v v) 
+        (-β v v)).mpr  h1
+   rw [← sub_eq_add_neg, sub_self ((β v) v)] at h2
+   rw [← two_mul] at h2
+   apply zero_of_two_mul_eq_zero at h2
+   exact h2
+\end{minted}
+}
+\end{itemize}
+\end{frame}
+\end{comment}
+
+\begin{comment}
+\begin{frame} [label={sec:proof_comparison},fragile] {Alternating $\rightarrow$ Reflexive}
+\begin{itemize}
+\end{itemize}
+{\scriptsize
+\begin{minted}[]{lean}
+lemma alt_is_refl (β:BilinForm k V) (h:Alt β) : IsRefl β := by
+  intro v w l
+  have hv : β v v = 0 := by apply h
+  have hw : β w w = 0 := by apply h
+  have h1 : β (v+w) (v+w) = β v v + β w v + β v w + β w w :=
+    calc
+    (β (v+w)) (v+w) = (β v) (v+w) + (β w) (v+w) := by 
+        rw [LinearMap.BilinForm.add_left]
+    _ = (β v) v + (β w) v + (β v) w + (β w) w := by
+      rw [LinearMap.BilinForm.add_right v v w, 
+        LinearMap.BilinForm.add_right w v w, ← add_assoc] 
+      ring
+  have hvw : β (v+w) (v+w) = 0 := by apply h
+  rw [hv, hw, hvw, zero_add, add_zero, add_comm] at h1
+  have h2: 0 + -(β w) v = (β v) w + (β w) v + -(β w) v := by
+    apply (@add_right_cancel_iff _ _ _ (-(β w) v) 0 
+        ((β v) w + (β w) v)).mpr h1
+  rw [l, zero_add] at h1
+  symm at h1
+  exact h1
+\end{minted}
+}
+\end{frame}
+\end{comment}
+
+\begin{comment}
+\begin{frame} [label={sec:proof_comparison},fragile] {Symmetric $\rightarrow$ Reflexive}
+\begin{itemize}
+\end{itemize}
+{\footnotesize
+\begin{minted}[]{lean}
+lemma symm_is_reflexive (β:BilinForm k V) (h:Symm β) : 
+    IsRefl β := by
+  intro v w l
+  have h1: (β v) w = (β w) v := by 
+    apply h
+  rw [l] at h1
+  symm at h1
+  exact h1
+\end{minted}
+}
+\end{frame}
+
+\end{comment}
+
+\section{Equivalence}
+\subsection{Pen and Paper Proof}
+\begin{frame}{Equivalent Bilinear Forms}
+\begin{Definition}
+Two bilinear forms $\beta_1$ and $\beta_2$ on the respective vector spaces $V_1$ and $V_2$ are \textbf{equivalent} if there is a vector space isomorphism $\Phi:V_1\to V_2$ such that $\beta_2 (\Phi v,\Phi w)= \beta_1 (v,w)$ $\forall$ $v,$ $w\in V_1$
+\end{Definition}
+%\end{frame}
+\pause
+%\begin{frame}{Proving Equivalence of Bilinear Forms}
+\begin{block}{Proof Statement}
+\begin{itemize}
+    \item Given two bilinear forms, $\beta_1$ and $\beta_2$, on the respective vector spaces $V_1$ and $V_2$ and a basis $b_1$ for $\beta _1$
+    \item Show that $\beta_1$ is equivalent to $\beta_2$ $\iff$ $\exists$ a basis $b_2$ of $V_2$ such that $M_1$ given by $[\beta_1$ $(b_1$ $i,$ $b_1$ $j)]$ is equal to $M_2$ given by $[\beta_2$ $(b_2$ $i,$ $b_2$ $j)]$
+
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Proving Equivalence of Bilinear Forms}
+    \vspace{0 cm}
+\begin{columns}[T]
+\column{0.5\textwidth}
+    {\scriptsize
+    \begin{block}{Proof Statement $\rightarrow$}
+    Given that $\beta_1$ and $\beta_2$ are equivalent, show that $M_1$ is equivalent to $M_2$.
+    \end{block}
+    
+    \textbf{Steps:}
+    }
+    %\begin{halfspace}
+    {\scriptsize
+    \begin{enumerate}
+        \item Define $\Phi : V_1 \rightarrow V_2$ with two properties:
+        \begin{itemize}
+        {\tiny
+            \item Equivalence: {\tiny $\Phi$ is an invertible linear transformation }
+            \item Compatibility : {\tiny $\beta_1 (v,w)= \beta_2 (\Phi v, \Phi w )$ }
+        }
+        \end{itemize}
+        \item Construct $b_2$ as a basis from $b_1$ using $\Phi$
+        \begin{itemize}
+        {\tiny
+            \item If $b_1 = x_1, . . . , x_n$ then $b_2 = \Phi x_1, . . . , \Phi x_n$
+        }
+        \end{itemize}
+        \item $M_1 = M_2$ by compatibility
+    \end{enumerate}
+    }
+    %\end{halfspace}
+
+\column{0.5\textwidth}
+    {\scriptsize
+    \begin{block}{Proof Statement $\leftarrow$}
+    Given a basis $b_2$ of $V_2$ such that $M_1 = M_2$, show that $\beta_1$ is equivalent to $\beta_2$.
+    \end{block}
+    }
+    {\scriptsize
+    \textbf {Steps:}
+    \begin{enumerate}
+        \item Define $\Phi : V_1 \rightarrow V_2$ where $\Phi (b_1$ $i) = b_2$ $i$
+        \item Check compatibility condition holds
+        \begin{itemize}
+        {\scriptsize
+            \item Compatibility is true on a basis, so must check that compatibility is true for all vectors
+        }
+        \end{itemize}
+        \item Show that all vectors can be written as a linear combination of basis vectors, therefore compatibility holds
+    \end{enumerate}
+    }
+\end{columns}
+\end{frame}
+
+\begin{frame}{Linearity of Sums in Bilinear Forms}
+\begin{Lemma}
+$\beta (\sum\limits_{i} t_i \bullet b_i ,$ $\sum\limits_{j} s_j \bullet b_j)$ $=$ $\sum\limits_{i}$ $\sum\limits_{j}$ $t_i*s_j$ $\beta (b_i , b_j)$
+\end{Lemma}
+{\footnotesize
+Where $\beta$ is a bilinear form, $t_i,$ $s_j \in k$, and $b_i,$ $b_j$ are basis vectors for V
+}
+\pause
+Recall:
+\begin{block}{Definition}
+{\footnotesize
+A \textbf {bilinear form} is a map $\beta : V\times W \to K $, where V and W are K-vector spaces and K is a field, when
+\begin{enumerate}
+    \item $\beta (v_1 + v_2 , w) = \beta (v_1 , w) +\beta ( v_2,w)$
+    \item $\beta ( v, w_1 + w_2) = \beta (v,w_1) +\beta (v , w_2)$
+    \item $\beta(\lambda v, w) = \beta (v, \lambda w) = \lambda \beta (v , w)$
+\end{enumerate}
+hold $\forall$ $v\in V$, $w\in W$, and $\lambda \in K$.
+}
+\end{block}
+\end{frame}
+
+\subsection{Proving Equivalence in Lean}
+\begin{frame}[label={sec:proof_comparison},fragile]{Linearity of Sums in Bilinear Forms Lean Proof}
+\begin{itemize}
+\end{itemize}
+{\scriptsize
+\begin{minted}[]{lean}
+lemma equiv_of_series {ι:Type} [Fintype ι] 
+    (β:BilinForm k V) (b : Basis ι k V) (s t : ι → k): 
+(β (Fintype.linearCombination k ⇑b t)) 
+(Fintype.linearCombination k ⇑b s) =
+∑ i:ι, (∑ j:ι, (t i) * (s j) * (β (b i) (b j))) := by
+  unfold Fintype.linearCombination
+  dsimp
+  rw [LinearMap.BilinForm.sum_left]
+  apply Finset.sum_congr
+  rfl
+  intro i h
+  rw [LinearMap.BilinForm.sum_right]
+  apply Finset.sum_congr
+  rfl
+  intro j g
+  rw [LinearMap.BilinForm.smul_left]
+  rw [mul_comm]
+  rw [LinearMap.BilinForm.smul_right]
+  ring
+\end{minted}
+}
+\end{frame}
+
+
+%\begin{frame}{Full Lean Proof}
+
+%In Lean, we can show that two bilinear forms are equivalent by proving a theorem stating that the pair $(V_1, \beta_1)$ is equivalent to $(V_2 , \beta_2)$ if and only if there is a basis $b_1$ for $V_1$ and a basis $b_2$ for $V_2$ such that the matrix determined by $b_1$ and $\beta_1$ coincides with the matrix determined by $b_2$ and $\beta_2$
+
+
+%\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Proving Equivalence in Lean}
+
+{\tiny
+\begin{minted}[]{lean}
+theorem equiv_via_matrices  {ι:Type} [Fintype ι] [DecidableEq ι]
+ (β₁:BilinForm k V₁) (β₂:BilinForm k V₂) (b₁ : Basis ι k V₁) (i j : ι) (s t : ι → k)
+  : Nonempty (equiv_of_spaces_with_form β₁ β₂) ↔  ∃ b₂:Basis ι k V₂, ∀ i j : ι,
+    (BilinForm.toMatrix b₁ β₁) i j =  (BilinForm.toMatrix b₂ β₂) i j
+  := by
+  constructor
+  -- mp
+  intro <N>
+  let b₂ : Basis ι k V₂ := Basis.map b₁ N.equiv
+  use b₂
+  unfold b₂
+  unfold BilinForm.toMatrix
+  simp
+  intro i j
+  rw [N.compat (b₁ i) (b₁ j)]
+  -- mpr
+  intro h₁
+  rcases h₁ with <b₂, h₁>
+  refine Nonempty.intro ?_
+  let eq : V₁ ≃[k] V₂ := by apply equiv_from_bases; exact b₁; exact b₂
+  have identify_bases : ∀ i:ι, b₂ i = eq (b₁ i) := by
+    intro i; unfold eq;  rw [← equiv_from_bases_apply b₁ b₂ i]
+  apply equiv_of_spaces_with_form.mk
+  intro v w
+  swap
+  exact eq
+  
+%\end{minted}
+}
+\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Proving Equivalence in Lean Continued}
+
+{\tiny
+\begin{minted}[]{lean}
+have sum_v : v = (Fintype.linearCombination k ⇑b₁) (b₁.repr v):=
+    by symm; apply fintype_linear_combination_repr
+  have sum_w : w = (Fintype.linearCombination k ⇑b₁) (b₁.repr w):=
+    by symm; apply fintype_linear_combination_repr
+  nth_rw 1 [sum_v, sum_w]
+  rw [equiv_of_series]
+  nth_rw 2 [sum_v, sum_w]
+  rw [ Fintype.linearCombination_apply, Fintype.linearCombination_apply]
+  rw [ map_sum eq, map_sum eq]
+  rw [equiv_of_bilin_series]
+  apply Finset.sum_congr
+  rfl
+  intro i hi
+  apply Finset.sum_congr
+  rfl
+  intro j hj
+  rw [map_smul eq, map_smul eq]
+  rw [LinearMap.BilinForm.smul_left]
+  rw [mul_comm]
+  rw [LinearMap.BilinForm.smul_right]
+  rw [mul_comm]
+  rw [← identify_bases, ← identify_bases]
+  rw [← BilinForm.toMatrix_apply b₁ β₁ i j,← BilinForm.toMatrix_apply b₂ β₂]
+  rw [h₁ i j]
+  ring
+\end{minted}
+}
+\end{frame}
+
+\section{Preservation of Properties}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Alternating Equivalence}
+\begin{block}{Definition}
+A bilinear form $\beta$ is \textbf{alternating} or \textbf{anti-symmetric} if
+\begin{enumerate}
+    \item $\beta (v,v) = 0$, $\forall$ $v \in V$
+    \item $\beta (v,w) = -\beta (w,v)$, $\forall$ $v,w \in V$
+\end{enumerate}
+\end{block}
+\pause
+\begin{itemize}
+\end{itemize}
+{\footnotesize
+\begin{minted}[]{lean}
+theorem alt_of_equiv (eq : V₁ ≃[k,β₁,β₂] V₂) 
+ (halt : β₂.IsAlt) : β₁.IsAlt := by
+  intro v
+  have β₂_alt : (β₂ (eq.equiv v)) (eq.equiv v) = 0 := 
+    by apply halt
+  have h₁ : (β₁ v) v = (β₂ (eq.equiv v)) (eq.equiv v) := 
+    by apply eq.compat
+  rw [β₂_alt] at h₁
+  exact h₁
+\end{minted}
+}
+\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Symmetric Equivalence}
+\begin{block}{Definition}
+A bilinear form $\beta$ is \textbf{symmetric} if 
+\begin{itemize}
+    \item $\beta (v,w) = \beta (w,v)$ $\forall$ $v,w \in V$
+\end{itemize}
+\end{block}
+\pause
+\begin{itemize}
+\end{itemize}
+{\tiny
+\begin{minted}[]{lean}
+theorem symm_of_equiv (eq : V₁ ≃[k,β₁,β₂] V₂) 
+  (hsymm : β₂.IsSymm): β₁.IsSymm := by
+  intro v w
+  have β₂_symm : (β₂ (eq.equiv v)) (eq.equiv w) = 
+    (β₂ (eq.equiv w)) (eq.equiv v) := by apply hsymm
+  have h₁ : (β₁ v) w = (β₂ (eq.equiv v)) (eq.equiv w) := 
+    by apply eq.compat
+  have h₂ : (β₁ v) w = (β₂ (eq.equiv w)) (eq.equiv v) := 
+    by rw [β₂_symm] at h₁; exact h₁
+  have h₃ : (β₁ w) v = (β₂ (eq.equiv w)) (eq.equiv v) := 
+    by apply eq.compat
+  rw [← h₂] at h₃
+  simp
+  symm
+  exact h₃
+\end{minted}
+}
+\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Anisotropic Equivalence}
+\begin{block}{Definition}
+A bilinear form $\beta$ is \textbf{anisotropic} if
+\begin{itemize}
+    \item $\forall$ $v \in V$, $v\ne 0$, $\beta (v,v) \ne 0$
+\end{itemize}
+\end{block}
+\pause
+\begin{itemize}
+\end{itemize}
+{\scriptsize
+\begin{minted}[]{lean}
+theorem anisotropic_of_equiv (eq : V₁ ≃[k,β₁,β₂] V₂) 
+  (han : anisotropic β₂) : anisotropic β₁ := by
+  intro v hv
+  unfold anisotropicVector
+  have h₁ : (β₂ (eq.equiv v)) (eq.equiv v) ≠ 0 := by
+    apply han;
+    exact (LinearEquiv.map_ne_zero_iff eq.equiv).mpr hv
+  have h₂ : (β₁ v) v = (β₂ (eq.equiv v)) (eq.equiv v) := by 
+    apply eq.compat
+  rw [← h₂] at h₁
+  exact h₁
+\end{minted}
+}
+\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Nondegenerate Equivalence}
+\begin{block}{Nondegenerate Definition}
+Let $\beta$ be a bilinear form on $V$, $M=[\beta(v_i,v_j)]$, and $v_1, . . . , v_n$ a basis of $V$. The following are equivalent:
+\begin{itemize}
+    \item $det(M) \neq 0$
+    \item $\forall w \in V $ $\beta (v,w) = 0 \implies v=0$
+    \item $\forall v \in V $ $\beta (v,w) = 0 \implies w=0$
+%this proof focuses on the last bullet
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Nondegenerate Equivalence Lean Proof}
+\begin{itemize}
+\end{itemize}
+{\tiny
+\begin{minted}[]{lean}
+theorem nondeg_of_equiv (eq : V₁ ≃[k,β₁,β₂] V₂) (hnd : β₂.Nondegenerate)
+  : β₁.Nondegenerate := by
+  intro v h₁
+  have h₂ : (∀ (w : V₂), (β₂ (eq.equiv v)) w = 0) → (eq.equiv v) = 0 := by
+    exact hnd (eq.equiv v)
+  have h₃ : ∀ (n:V₁), (β₁ v) n = (β₂ (eq.equiv v)) (eq.equiv n) := by
+    apply eq.compat
+  have eq₁ : eq.equiv v = 0 → v = 0 := by
+    intro h
+    exact (LinearEquiv.map_eq_zero_iff eq.equiv).mp h
+  apply eq₁
+  apply h₂
+  intro w
+  let x : V₁ := eq.equiv.invFun w
+  have h₅ : eq.equiv x = w := by exact (LinearEquiv.eq_symm_apply eq.equiv).mp rfl
+  rw [← h₅]
+  have h₄ : ∀ (n : V₁), (β₂ (eq.equiv v)) (eq.equiv n) = 0 := by
+    intro n
+    rw [← h₃]
+    apply h₁
+  apply h₄
+\end{minted}
+}
+\end{frame}
+
+
+\section{Symmetry and Transitivity}
+
+\begin{frame}{Symmetry of Equivalence}
+Recall:
+\begin{Definition}
+Two bilinear forms $\beta_1$ and $\beta_2$ on the respective vector spaces $V_1$ and $V_2$ are \textbf{equivalent} if there is a vector space isomorphism $\Phi:V_1\to V_2$ such that $\beta_2 (\Phi v,\Phi w)= \beta_1 (v,w)$ $\forall$ $v,$ $w\in V_1$
+\end{Definition}
+
+\pause
+
+\begin{block}{Lemma}
+Given $\beta_1$ is equivalent to $\beta_2$, there exists a vector space isomorphism $\phi_2 : V_2 \rightarrow V_1$ such that $\beta_1 (\Phi_2 v,\Phi_2 w)= \beta_2 (v,w)$ $\forall$ $v,$ $w\in V_2$
+\end{block}
+\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Proof of Symmetry of Equivalence in Lean}
+\begin{itemize}
+\end{itemize}
+{\scriptsize
+\begin{minted}[]{lean}
+def equiv_of_spaces_with_form.symm {β₁ : BilinForm k V₁} 
+{β₂:BilinForm k V₂} (e:V₁≃[k,β₁,β₂] V₂) : V₂≃[k,β₂,β₁] V₁ where
+    equiv := e.equiv.symm
+    compat := by
+      intro y z
+      let v : V₁ := e.equiv.invFun y
+      let w : V₁ := e.equiv.invFun z
+      have h₁ : (β₁ v) w = (β₂ (e.equiv v)) (e.equiv w) := by
+        apply e.compat
+      have hv : e.equiv v = y := by 
+        exact (LinearEquiv.eq_symm_apply e.equiv).mp rfl
+      have hw : e.equiv w = z := by 
+        exact (LinearEquiv.eq_symm_apply e.equiv).mp rfl
+      rw [hv, hw] at h₁
+      have hy : v = e.equiv.invFun y := by rfl
+      have hz : w = e.equiv.invFun z := by rfl
+      rw [hy, hz] at h₁
+      simp at h₁
+      symm at h₁
+      exact h₁
+\end{minted}
+}
+\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Transitivity of Equivalence}
+\begin{block}{Lemma}
+%Given that $\beta_1$ is equivalent to $\beta_2$ and $\beta_2$ is equivalent to $\beta_3$, 
+%$\beta_1$ is equivalent to $\beta_3$
+
+Given bilinear forms $\beta_1$, $\beta_2$, and $\beta_3$ on the respective vector spaces $V_1$, $V_2$, and $V_3$, $\Phi:V_1\to V_2$ such that $\beta_2 (\Phi v,\Phi w)= \beta_1 (v,w)$ $\forall$ $v,$ $w\in V_1$, and $\Phi_2:V_2\to V_3$ such that $\beta_3 (\Phi_2 v,\Phi_2 w)= \beta_2 (v,w)$ $\forall$ $v,$ $w\in V_2$. 
+
+$\exists$ a vector space isomorphism $\Phi_3 : V_1 \to V_3$ such that $\beta_3 (\Phi_3 v,\Phi_3 w)= \beta_1 (v,w)$ $\forall$ $v$, $w \in V_1$.
+\end{block}
+\end{frame}
+
+\begin{frame}[label={sec:proof_comparison},fragile]{Proof of Transitivity of Equivalence in Lean}
+\begin{itemize}
+\end{itemize}
+{\scriptsize
+\begin{minted}[]{lean}
+def equiv_of_spaces_with_form.trans  {β₁:BilinForm k V₁}
+  {β₂:BilinForm k V₂} {β₃:BilinForm k V₃} 
+  (e₁:V₁ ≃[k,β₁,β₂] V₂) (e₂:V₂ ≃[k,β₂,β₃] V₃) :
+  V₁ ≃[k,β₁,β₃] V₃ where
+    equiv := e₁.equiv.trans e₂.equiv
+    compat := by
+      intro x y
+      have h₁ : (β₁ x) y = (β₂ (e₁.equiv x)) (e₁.equiv y) :=
+        by apply e₁.compat
+      have h₂ : (β₂ (e₁.equiv x)) (e₁.equiv y) = 
+        (β₃ (e₂.equiv (e₁.equiv x))) (e₂.equiv (e₁.equiv y)) :=
+            by apply e₂.compat
+      rw [h₂] at h₁
+      simp
+      exact h₁
+\end{minted}
+}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Lean Takeaways}
+\pause
+\begin{itemize}
+    \item Lean is not necessarily an efficient way to prove things given the specificity of types and the time it takes to find necessary theorems and lemmas in Mathlib (or prove them yourself if you can't find it)
+    \begin{itemize}
+        \item However, dependent type theory does ensure accuracy in proofs and prevents incorrect inferences
+    \end{itemize}
+\pause
+%George and I spent like two days trying to figure out how to add something to both sides of an equation
+    \item There are benefits to proving things in Lean, although they do not always outweigh the amount time necessary to spend on proofs
+    \begin{itemize}
+        \item A strong understanding of traditional proofs
+        \item Lean is like any math problem; it can be frustrating but is rewarding to complete
+    \end{itemize}
+\pause
+    \item Lean will become more practical over time as the time spent working on proofs may decrease in the future as Mathlib expands
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{References}
+\begin{enumerate}
+\item Conrad, K. (n.d.). Bilinear Forms. https://kconrad.math.uconn.edu/blurbs/linmultialg/bilinearform.pdf
+%\item Elman RS, Karpenko N, Merkurjev A. The Algebraic and Geometric Theory of Quadratic Forms. American Mathematical Society; 2008.
+%\item 
+%\item Avigad, J. Buzzard, K. Lewis R. Y. Massot, P. (2020). \textit{Mathematics in Lean}. 
+%\item Liesen, J. Mehrmann, V. (2015). \textit{Linear Algebra}.
+\item Reich, E. (2005, February 28). Bilinear Forms. Retrieved July 10, 2005, from https://math.mit.edu/~dav/bilinearforms.pdf
+
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+	    \begin{center}
+	        \textbf{Thank you!}\\
+	        
+	        This work would not have been possible without the support of the National Science Foundation, the Tufts Math Department, and, most importantly, George McNinch.
+         \bigbreak
+         \LARGE
+       
+	    \end{center}
+\end{frame}
+
+
+
+\end{document} 
